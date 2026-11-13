@@ -1,0 +1,15 @@
+# Secrets and local environment files (never commit these)
+.env
+*.env
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Frontend (Angular, added later)
+node_modules/
