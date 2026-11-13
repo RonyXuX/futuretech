@@ -1,0 +1,52 @@
+{
+  "info": {
+    "name": "FutureTech API",
+    "description": "Catalog endpoints. Start the backend first (port 8080). Import in Postman: File > Import.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/health" }
+    },
+    {
+      "name": "Categories",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/categories" }
+    },
+    {
+      "name": "Products - first page (newest)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/products" }
+    },
+    {
+      "name": "Products - search 'rtx' under $700, cheapest first",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/products?search=rtx&maxPrice=700&sort=PRICE_ASC" }
+    },
+    {
+      "name": "Products - graphics cards by performance",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/products?category=graphics-cards&sort=PERFORMANCE&size=10" }
+    },
+    {
+      "name": "Products - AMD CPUs in stock",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/products?type=CPU&brand=AMD&inStock=true" }
+    },
+    {
+      "name": "Brands in a category",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/products/brands?category=cases" }
+    },
+    {
+      "name": "Product detail (id 1, a CPU with specs)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/products/1" }
+    },
+    {
+      "name": "Error - unknown product (404)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/products/99999" }
+    },
+    {
+      "name": "Error - bad sort value (400)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/products?sort=CHEAPEST" }
+    }
+  ]
+}
