@@ -1,11 +1,21 @@
 package com.futuretech.exception;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
@@ -23,6 +33,38 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ProblemDetail handleNotFound(ResourceNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    /** Login/registration failures (401, 409, 423, 429), with Retry-After when the client must wait. */
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<ProblemDetail> handleAuth(AuthException ex) {
+        ResponseEntity.BodyBuilder response = ResponseEntity.status(ex.getStatus());
+        if (ex.getRetryAfter() != null) {
+            response.header(HttpHeaders.RETRY_AFTER, String.valueOf(Math.max(1, ex.getRetryAfter().toSeconds())));
+        }
+        return response.body(ProblemDetail.forStatusAndDetail(ex.getStatus(), ex.getMessage()));
+    }
+
+    /** A logged-in user tried something their role doesn't allow. */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "You don't have permission to do this.");
+    }
+
+    /**
+     * A request body broke a validation rule (@NotBlank, @Email, ...). Adds an "errors" map
+     * like {"password": "must contain at least one letter and one digit"} so forms can show it.
+     */
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+            HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            errors.putIfAbsent(error.getField(), error.getDefaultMessage());
+        }
+        ProblemDetail body = ProblemDetail.forStatusAndDetail(status, "Some fields are invalid.");
+        body.setProperty("errors", errors);
+        return handleExceptionInternal(ex, body, headers, status, request);
     }
 
     /** Anything unexpected: log the details for us, but don't leak them to the client. */

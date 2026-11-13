@@ -1,52 +1,247 @@
 {
   "info": {
     "name": "FutureTech API",
-    "description": "Catalog endpoints. Start the backend first (port 8080). Import in Postman: File > Import.",
+    "description": "Start the backend first (port 8080). Import in Postman: File > Import. Run 'Auth - login' first: it saves the access token, and Postman keeps the refresh cookie automatically.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8080" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    }
   ],
   "item": [
     {
       "name": "Health",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/health" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/health"
+      }
+    },
+    {
+      "name": "Auth - register (new customer)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// save the JWT so the other requests can use it",
+              "if (pm.response.code < 300) { pm.collectionVariables.set('accessToken', pm.response.json().accessToken); }"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test.user@example.com\",\n  \"password\": \"Secret123\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Auth - login (demo customer Lina)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// save the JWT so the other requests can use it",
+              "if (pm.response.code < 300) { pm.collectionVariables.set('accessToken', pm.response.json().accessToken); }"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"lina.haddad@example.com\",\n  \"password\": \"Demo@2026\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Me (needs login)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/me",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Auth - refresh (uses the cookie)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// save the JWT so the other requests can use it",
+              "if (pm.response.code < 300) { pm.collectionVariables.set('accessToken', pm.response.json().accessToken); }"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/auth/refresh"
+      }
+    },
+    {
+      "name": "Auth - logout",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/auth/logout"
+      }
+    },
+    {
+      "name": "Error - wrong password (401; 5x locks the account: 423)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"omar.khalil@example.com\",\n  \"password\": \"wrong-password1\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Error - weak password on register (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"weak@example.com\",\n  \"password\": \"abcdefgh\",\n  \"firstName\": \"W\",\n  \"lastName\": \"P\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Error - me without token (401)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/me"
+      }
     },
     {
       "name": "Categories",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/categories" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/categories"
+      }
     },
     {
       "name": "Products - first page (newest)",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/products" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/products"
+      }
     },
     {
       "name": "Products - search 'rtx' under $700, cheapest first",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/products?search=rtx&maxPrice=700&sort=PRICE_ASC" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/products?search=rtx&maxPrice=700&sort=PRICE_ASC"
+      }
     },
     {
       "name": "Products - graphics cards by performance",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/products?category=graphics-cards&sort=PERFORMANCE&size=10" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/products?category=graphics-cards&sort=PERFORMANCE&size=10"
+      }
     },
     {
       "name": "Products - AMD CPUs in stock",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/products?type=CPU&brand=AMD&inStock=true" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/products?type=CPU&brand=AMD&inStock=true"
+      }
     },
     {
       "name": "Brands in a category",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/products/brands?category=cases" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/products/brands?category=cases"
+      }
     },
     {
       "name": "Product detail (id 1, a CPU with specs)",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/products/1" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/products/1"
+      }
     },
     {
       "name": "Error - unknown product (404)",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/products/99999" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/products/99999"
+      }
     },
     {
       "name": "Error - bad sort value (400)",
-      "request": { "method": "GET", "url": "{{baseUrl}}/api/products?sort=CHEAPEST" }
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/products?sort=CHEAPEST"
+      }
     }
   ]
 }

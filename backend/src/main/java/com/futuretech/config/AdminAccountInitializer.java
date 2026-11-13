@@ -35,7 +35,7 @@ public class AdminAccountInitializer implements ApplicationRunner {
                                    @Value("${futuretech.admin.password:}") String adminPassword) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.adminEmail = adminEmail;
+        this.adminEmail = adminEmail.trim().toLowerCase(java.util.Locale.ROOT);  // logins compare lowercase
         this.adminPassword = adminPassword;
     }
 

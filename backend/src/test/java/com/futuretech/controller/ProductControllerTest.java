@@ -19,9 +19,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.futuretech.config.SecurityConfig;
+import com.futuretech.support.TestSecurity;
 import com.futuretech.dto.CategoryDto;
 import com.futuretech.dto.PageResponse;
 import com.futuretech.dto.ProductDetailDto;
@@ -34,10 +38,12 @@ import com.futuretech.exception.ResourceNotFoundException;
 import com.futuretech.service.ProductService;
 
 /**
- * Web-layer tests: starts only the controller, the error handler and the CORS config
+ * Web-layer tests: starts only the controller, the error handler and the security/CORS config
  * (no database), and sends fake HTTP requests with MockMvc. The service is a Mockito fake.
  */
 @WebMvcTest(ProductController.class)
+@Import(SecurityConfig.class)
+@TestPropertySource(properties = TestSecurity.JWT_SECRET_PROPERTY)
 class ProductControllerTest {
 
     @Autowired

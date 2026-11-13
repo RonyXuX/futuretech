@@ -48,10 +48,10 @@
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<!-- BCrypt password hashing only (NOT full Spring Security, so endpoints stay open until week 6) -->
+		<!-- Spring Security + JWT support (signing, checking Bearer tokens). Includes BCrypt. -->
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-crypto</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security-oauth2-resource-server</artifactId>
 		</dependency>
 		<!-- Generates getters/setters/constructors at compile time -->
 		<dependency>
@@ -81,6 +81,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- Helpers to fake a logged-in user (a JWT) in web tests -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security-oauth2-resource-server-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

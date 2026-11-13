@@ -111,5 +111,16 @@ Its main feature is **ForgeAI**, a PC-building engine.
   - Points: 1 point per whole dollar of the order total.
   - Schema changes only via NEW Flyway migrations (never edit one that has run).
   - Compatibility rules: the 6 from the design rules, plus PSU size and radiator fit (data in V3).
-- Next: product catalog API (plan proposed: categories, filtered/paged product list,
-  product detail with specs, error handling, CORS, tests).
+- Backend-first order agreed (B1-B8 before Angular):
+  - Done: catalog API (`/api/categories`, `/api/products` with filters/sort/paging,
+    `/api/products/{id}` with typed specs, `/api/products/brands`), Problem Details errors.
+  - Done: B1 auth, 3 layers (`docs/security.md`):
+    - BCrypt + password rules
+    - 15-min JWT + 7-day rotating refresh cookie (hashed in DB, theft detection)
+    - Account lock (5 tries / 15 min) + per-IP rate limit
+    - Endpoints `/api/auth/{register,login,refresh,logout}`, `/api/me`. Migration V6.
+  - Env vars to run: `DB_PASSWORD`, `JWT_SECRET` (required); `ADMIN_EMAIL`/`ADMIN_PASSWORD` (optional).
+- Not yet verified against the real DB: V2-V6 and the API (unit/web tests pass without DB).
+  Commits after 693b190 are local only, not pushed yet.
+- Next: B2 checkout and orders, then B3 profile, B4 admin, B5 rule engine, B6 saved builds,
+  B7 AI recommendations, B8 budget optimizer.
