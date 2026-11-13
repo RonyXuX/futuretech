@@ -35,6 +35,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    /** 409: e.g. not enough stock. Adds a "problems" list when there are several reasons. */
+    @ExceptionHandler(ConflictException.class)
+    public ProblemDetail handleConflict(ConflictException ex) {
+        ProblemDetail body = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        if (!ex.getProblems().isEmpty()) {
+            body.setProperty("problems", ex.getProblems());
+        }
+        return body;
+    }
+
     /** Login/registration failures (401, 409, 423, 429), with Retry-After when the client must wait. */
     @ExceptionHandler(AuthException.class)
     public ResponseEntity<ProblemDetail> handleAuth(AuthException ex) {

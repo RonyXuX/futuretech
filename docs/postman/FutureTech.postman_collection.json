@@ -12,6 +12,10 @@
     {
       "key": "accessToken",
       "value": ""
+    },
+    {
+      "key": "orderId",
+      "value": ""
     }
   ],
   "item": [
@@ -241,6 +245,109 @@
       "request": {
         "method": "GET",
         "url": "{{baseUrl}}/api/products?sort=CHEAPEST"
+      }
+    },
+    {
+      "name": "Orders - checkout (needs login)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// remember the new order id for the next requests",
+              "if (pm.response.code === 201) { pm.collectionVariables.set('orderId', pm.response.json().id); }"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/orders",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"items\": [\n    {\n      \"productId\": 1,\n      \"quantity\": 1\n    },\n    {\n      \"productId\": 30,\n      \"quantity\": 2\n    }\n  ],\n  \"shipping\": {\n    \"fullName\": \"Lina Haddad\",\n    \"address\": \"12 Hamra Street\",\n    \"city\": \"Beirut\",\n    \"phone\": \"+961 70 000 001\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Orders - my order history",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/orders"
+      }
+    },
+    {
+      "name": "Orders - one order with warranties",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/orders/{{orderId}}"
+      }
+    },
+    {
+      "name": "Orders - cancel (only while PLACED)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/orders/{{orderId}}/cancel"
+      }
+    },
+    {
+      "name": "Error - checkout more than in stock (409)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/orders",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"items\": [\n    {\n      \"productId\": 7,\n      \"quantity\": 1\n    }\n  ],\n  \"shipping\": {\n    \"fullName\": \"Lina Haddad\",\n    \"address\": \"12 Hamra Street\",\n    \"city\": \"Beirut\",\n    \"phone\": \"+961 70 000 001\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
       }
     }
   ]

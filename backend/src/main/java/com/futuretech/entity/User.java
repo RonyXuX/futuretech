@@ -3,6 +3,8 @@ package com.futuretech.entity;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.DynamicUpdate;
+
 import com.futuretech.entity.enums.Role;
 
 import jakarta.persistence.*;
@@ -13,6 +15,9 @@ import lombok.Setter;
 /** A customer or admin account. Table is "users" because "user" is reserved in PostgreSQL. */
 @Entity
 @Table(name = "users")
+// Only write the columns that actually changed. Otherwise saving e.g. a failed-login counter
+// would also write back an old points balance and undo points added at the same moment.
+@DynamicUpdate
 @Getter
 @Setter
 @NoArgsConstructor

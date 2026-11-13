@@ -119,8 +119,15 @@ Its main feature is **ForgeAI**, a PC-building engine.
     - 15-min JWT + 7-day rotating refresh cookie (hashed in DB, theft detection)
     - Account lock (5 tries / 15 min) + per-IP rate limit
     - Endpoints `/api/auth/{register,login,refresh,logout}`, `/api/me`. Migration V6.
+  - Done: B2 checkout and orders:
+    - `POST /api/orders`: one transaction, products row-locked, price snapshot, stock,
+      warranties, points
+    - `GET /api/orders`, `GET /api/orders/{id}` (own orders only, others give 404)
+    - `POST /api/orders/{id}/cancel` (only PLACED: restores stock, removes warranties,
+      reverses points)
+    - Points rule lives only in `PointsService`
   - Env vars to run: `DB_PASSWORD`, `JWT_SECRET` (required); `ADMIN_EMAIL`/`ADMIN_PASSWORD` (optional).
 - Not yet verified against the real DB: V2-V6 and the API (unit/web tests pass without DB).
   Commits after 693b190 are local only, not pushed yet.
-- Next: B2 checkout and orders, then B3 profile, B4 admin, B5 rule engine, B6 saved builds,
-  B7 AI recommendations, B8 budget optimizer.
+- Next: B3 profile (edit profile, points history, warranties), then B4 admin, B5 rule engine,
+  B6 saved builds, B7 AI recommendations, B8 budget optimizer.
