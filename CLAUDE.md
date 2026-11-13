@@ -93,6 +93,13 @@ Its main feature is **ForgeAI**, a PC-building engine.
 
 (Update this section after each session.)
 
-- Phase: 1 (not started)
-- Done: nothing yet
-- Next: database schema and backend project setup
+- Phase: 1 done (2026-11-13)
+- Done: Spring Boot 4.1.2 backend (package `com.futuretech`, Lombok getters/setters
+  only), PostgreSQL 18 connection via env vars (`DB_PASSWORD` required), Flyway
+  migration `V1__create_schema.sql` (16 tables), all JPA entities + repositories,
+  `GET /api/health`, ERD in `docs/erd.md`. Verified: app starts against local DB.
+- Decisions: cart lives in the frontend only (no cart tables); schema changes only
+  via new Flyway migrations (never edit V1).
+- Open: points rule (e.g. 1 point per $1) to decide before week 6.
+- Next: Phase 2, seed data (`V2__seed_data.sql`, 50-100 products with specs),
+  then the product catalog API.
