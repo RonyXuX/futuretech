@@ -8,10 +8,6 @@ import com.futuretech.dto.ProductSpecsDto;
 import com.futuretech.entity.Product;
 import com.futuretech.repository.spec.*;
 
-/**
- * Loads the right spec table for a product, based on its type
- * (a CPU reads cpu_specs, a GPU reads gpu_specs, and so on).
- */
 @Service
 public class ProductSpecsService {
 
@@ -41,10 +37,7 @@ public class ProductSpecsService {
         this.computerSpecs = computerSpecs;
     }
 
-    /**
-     * Returns the product's specs, or null if its type has no spec table
-     * (or, in bad data, the spec row is missing). Call inside a transaction.
-     */
+    /** null if the type has no spec table (or the row is missing). Needs an open transaction. */
     public ProductSpecsDto findSpecs(Product product) {
         Long id = product.getId();
         Optional<? extends ProductSpecsDto> specs = switch (product.getProductType()) {

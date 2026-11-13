@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** A PC build a customer saved in ForgeAI (manual builder or AI suggestion). */
 @Entity
 @Table(name = "saved_builds")
 @Getter
@@ -35,7 +34,6 @@ public class SavedBuild {
     @Column(nullable = false)
     private BuildSource source;
 
-    // e.g. "gaming", "editing", "office"
     private String useCase;
 
     @Column(precision = 10, scale = 2)
@@ -44,7 +42,6 @@ public class SavedBuild {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // Saving a build also saves its parts; removing a part from the list deletes it
     @OneToMany(mappedBy = "build", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BuildItem> items = new ArrayList<>();
 
@@ -54,7 +51,7 @@ public class SavedBuild {
         item.setBuild(this);
     }
 
-    /** Total at TODAY's prices (not stored, so it never goes stale). */
+    /** At today's prices; not stored, so it never goes stale. */
     public BigDecimal getCurrentTotal() {
         return items.stream()
                 .map(i -> i.getProduct().getPrice().multiply(BigDecimal.valueOf(i.getQuantity())))

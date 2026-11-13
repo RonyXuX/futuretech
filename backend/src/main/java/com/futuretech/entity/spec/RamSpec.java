@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** RAM kit details used by the RAM-type rule. */
 @Entity
 @Table(name = "ram_specs")
 @Getter
@@ -28,11 +27,11 @@ public class RamSpec {
     @Column(nullable = false)
     private RamType ramType;
 
-    // Total capacity of the kit, e.g. 32 for a 2x16GB kit
+    // whole kit, e.g. 32 for 2x16GB
     @Column(nullable = false)
     private Integer capacityGb;
 
-    // Number of sticks in the kit
+    // number of sticks
     @Column(nullable = false)
     private Integer modules;
 

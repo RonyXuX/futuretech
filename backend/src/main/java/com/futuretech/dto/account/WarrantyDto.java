@@ -6,7 +6,6 @@ import java.time.temporal.ChronoUnit;
 import com.futuretech.entity.OrderItem;
 import com.futuretech.entity.Warranty;
 
-/** One row of "my warranties". Status and days left are calculated for the given day. */
 public record WarrantyDto(
         Long warrantyId,
         Long orderId,
@@ -20,7 +19,7 @@ public record WarrantyDto(
 
     public enum Status { ACTIVE, EXPIRED }
 
-    /** Must be called inside a transaction (order item, order and product are loaded lazily). */
+    /** Needs an open transaction: order item, order and product are lazy. */
     public static WarrantyDto from(Warranty w, LocalDate today) {
         OrderItem item = w.getOrderItem();
         boolean active = w.isActiveOn(today);

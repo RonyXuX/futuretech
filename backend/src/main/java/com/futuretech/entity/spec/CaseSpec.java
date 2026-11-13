@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** PC case clearances used by the Case-size, GPU-length, Cooler-height, PSU-size and Radiator rules. */
 @Entity
 @Table(name = "case_specs")
 @Getter
@@ -25,7 +24,7 @@ public class CaseSpec {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    // Largest motherboard that fits; smaller form factors fit too
+    // smaller form factors fit too
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FormFactor maxMotherboardFormFactor;
@@ -36,12 +35,12 @@ public class CaseSpec {
     @Column(nullable = false)
     private Integer maxCoolerHeightMm;
 
-    // Largest PSU that fits; SFX also fits in ATX cases
+    // SFX also fits in ATX cases
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PsuFormFactor maxPsuFormFactor = PsuFormFactor.ATX;
 
-    // Largest liquid-cooler radiator the case can mount; 0 = none
+    // 0 = no radiator support
     @Column(nullable = false)
     private Integer maxRadiatorMm = 0;
 }

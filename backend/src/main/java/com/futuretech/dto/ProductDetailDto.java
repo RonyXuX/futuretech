@@ -5,10 +5,7 @@ import java.math.BigDecimal;
 import com.futuretech.entity.Product;
 import com.futuretech.entity.enums.ProductType;
 
-/**
- * The full product, as shown on the product page.
- * "specs" is null for products without a spec table (accessories, peripherals).
- */
+/** specs is null for products without a spec table (accessories, peripherals). */
 public record ProductDetailDto(
         Long id,
         String sku,
@@ -25,7 +22,7 @@ public record ProductDetailDto(
         String imageUrl,
         ProductSpecsDto specs) {
 
-    /** Must be called inside a transaction, because product.getCategory() is loaded lazily. */
+    /** Needs an open transaction: the category is lazy. */
     public static ProductDetailDto from(Product p, ProductSpecsDto specs) {
         return new ProductDetailDto(
                 p.getId(), p.getSku(), p.getName(), p.getBrand(), p.getDescription(), p.getPrice(),

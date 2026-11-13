@@ -13,7 +13,6 @@ import com.futuretech.exception.ResourceNotFoundException;
 import com.futuretech.repository.UserRepository;
 import com.futuretech.service.auth.RefreshTokenService;
 
-/** The logged-in user's own account. */
 @Service
 public class UserService {
 
@@ -39,13 +38,10 @@ public class UserService {
         user.setFirstName(request.firstName().trim());
         user.setLastName(request.lastName().trim());
         user.setPhone(request.phone() == null || request.phone().isBlank() ? null : request.phone().trim());
-        return UserDto.from(user);  // saved automatically at the end of the transaction
+        return UserDto.from(user);  // saved by dirty checking at commit
     }
 
-    /**
-     * Needs the current password, so someone using a forgotten-open laptop can't take over the
-     * account. Afterwards every refresh token is revoked: all devices must log in again.
-     */
+    /** Needs the current password (protects an unlocked laptop); afterwards every device is logged out. */
     @Transactional
     public void changePassword(Long id, ChangePasswordRequest request) {
         User user = load(id);

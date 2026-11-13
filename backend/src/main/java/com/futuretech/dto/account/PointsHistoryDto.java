@@ -6,7 +6,6 @@ import java.util.List;
 import com.futuretech.entity.PointTransaction;
 import com.futuretech.entity.enums.PointReason;
 
-/** GET /api/me/points: the current balance and every change that led to it, newest first. */
 public record PointsHistoryDto(int balance, List<Entry> history) {
 
     public record Entry(int points, PointReason reason, Long orderId, LocalDateTime createdAt) {

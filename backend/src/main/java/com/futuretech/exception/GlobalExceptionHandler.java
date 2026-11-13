@@ -18,13 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-/**
- * Turns exceptions into clean JSON errors in the standard "Problem Details" format, e.g.
- * { "status": 404, "title": "Not Found", "detail": "Product 999 not found", "instance": "/api/products/999" }
- *
- * Extending ResponseEntityExceptionHandler already covers Spring's own errors with the right
- * status: bad parameter values (400), unknown URLs (404), wrong HTTP method (405), ...
- */
+/** Problem Details (RFC 9457) errors. The parent class already maps Spring's own exceptions. */
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
@@ -35,7 +29,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    /** 400 for one wrong field, in the same shape as validation errors. */
+    /** Same {"errors": {field: message}} shape as validation errors. */
     @ExceptionHandler(InvalidInputException.class)
     public ProblemDetail handleInvalidInput(InvalidInputException ex) {
         ProblemDetail body = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Some fields are invalid.");
@@ -43,7 +37,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return body;
     }
 
-    /** 409: e.g. not enough stock. Adds a "problems" list when there are several reasons. */
     @ExceptionHandler(ConflictException.class)
     public ProblemDetail handleConflict(ConflictException ex) {
         ProblemDetail body = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
@@ -53,7 +46,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return body;
     }
 
-    /** Login/registration failures (401, 409, 423, 429), with Retry-After when the client must wait. */
     @ExceptionHandler(AuthException.class)
     public ResponseEntity<ProblemDetail> handleAuth(AuthException ex) {
         ResponseEntity.BodyBuilder response = ResponseEntity.status(ex.getStatus());
@@ -63,16 +55,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return response.body(ProblemDetail.forStatusAndDetail(ex.getStatus(), ex.getMessage()));
     }
 
-    /** A logged-in user tried something their role doesn't allow. */
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "You don't have permission to do this.");
     }
 
-    /**
-     * A request body broke a validation rule (@NotBlank, @Email, ...). Adds an "errors" map
-     * like {"password": "must contain at least one letter and one digit"} so forms can show it.
-     */
+    /** Adds {"errors": {field: message}} so forms can show each message next to its field. */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
             HttpHeaders headers, HttpStatusCode status, WebRequest request) {
@@ -85,7 +73,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, body, headers, status, request);
     }
 
-    /** Anything unexpected: log the details for us, but don't leak them to the client. */
+    /** Logs the details but never sends them to the client. */
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUnexpected(Exception ex) {
         log.error("Unexpected error", ex);

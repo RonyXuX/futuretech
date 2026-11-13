@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** One change to a user's points (the history behind user.pointsBalance). */
+/** Ledger entry; user.pointsBalance is the cached sum of these. */
 @Entity
 @Table(name = "point_transactions")
 @Getter
@@ -30,7 +30,7 @@ public class PointTransaction {
     @JoinColumn(name = "order_id")
     private Order order;
 
-    // Positive = earned, negative = removed
+    // positive = earned, negative = taken back
     @Column(nullable = false)
     private Integer points;
 

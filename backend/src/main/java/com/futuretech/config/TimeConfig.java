@@ -5,10 +5,7 @@ import java.time.Clock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Services ask this Clock for "now" instead of calling LocalDateTime.now() directly,
- * so tests can use a fixed time (e.g. to check that a 15-minute lock really ends).
- */
+/** Services read "now" from this Clock instead of calling now() directly, so tests can control time. */
 @Configuration
 public class TimeConfig {
 

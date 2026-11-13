@@ -7,12 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * CPU details used by the Socket and PSU-wattage rules.
- *
- * All spec entities follow the same pattern: @MapsId makes the product's id
- * also the primary key of this table, so each product has at most one spec row.
- */
+/** Like every spec entity, it reuses its product's id as primary key (@MapsId). */
 @Entity
 @Table(name = "cpu_specs")
 @Getter

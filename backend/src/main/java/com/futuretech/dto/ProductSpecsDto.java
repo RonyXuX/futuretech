@@ -9,11 +9,6 @@ import com.futuretech.entity.enums.RamType;
 import com.futuretech.entity.enums.StorageType;
 import com.futuretech.entity.spec.*;
 
-/**
- * The type-specific specs shown on a product page. "sealed" means only the records below
- * can implement this interface, so the code always knows every possible kind of spec.
- * Each record is a plain copy of its entity, without the database links.
- */
 public sealed interface ProductSpecsDto {
 
     record Cpu(String socket, int cores, int threads, double baseClockGhz, Double boostClockGhz,

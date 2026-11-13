@@ -27,10 +27,6 @@ public class ProductController {
         this.productService = productService;
     }
 
-    /**
-     * GET /api/products - search and filter the catalog. All parameters are optional, e.g.
-     * /api/products?category=graphics-cards&maxPrice=600&sort=PRICE_ASC&page=0&size=20
-     */
     @GetMapping
     public PageResponse<ProductSummaryDto> searchProducts(
             @RequestParam(required = false) String search,
@@ -47,13 +43,11 @@ public class ProductController {
         return productService.searchProducts(filter, sort, page, size);
     }
 
-    /** GET /api/products/brands?category=cases - brands for the filter dropdown. */
     @GetMapping("/brands")
     public List<String> getBrands(@RequestParam(required = false) String category) {
         return productService.getBrands(category);
     }
 
-    /** GET /api/products/42 - one product with its full specs, or 404. */
     @GetMapping("/{id}")
     public ProductDetailDto getProduct(@PathVariable Long id) {
         return productService.getProduct(id);

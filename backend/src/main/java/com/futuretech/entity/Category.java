@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** A storefront category shoppers browse, e.g. "Graphics Cards" or "Gaming Laptops". */
 @Entity
 @Table(name = "categories")
 @Getter

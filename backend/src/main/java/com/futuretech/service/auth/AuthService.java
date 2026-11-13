@@ -19,10 +19,6 @@ import com.futuretech.entity.enums.Role;
 import com.futuretech.exception.AuthException;
 import com.futuretech.repository.UserRepository;
 
-/**
- * Register, login, refresh and logout. Each successful call returns an access token (JWT)
- * for the response body and a new refresh token for the cookie.
- */
 @Service
 public class AuthService {
 
@@ -34,10 +30,7 @@ public class AuthService {
     private final SecurityProperties props;
     private final Clock clock;
 
-    /**
-     * Used when the email doesn't exist: we still run one BCrypt check against this hash, so
-     * "unknown email" takes as long as "wrong password" and timing doesn't reveal accounts.
-     */
+    // Checked when the email doesn't exist, so "unknown email" takes as long as "wrong password"
     private final String dummyHash;
 
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService,
@@ -53,11 +46,10 @@ public class AuthService {
         this.dummyHash = passwordEncoder.encode("not-a-real-password");
     }
 
-    /** What a successful auth call produces: the JSON body + the raw refresh token for the cookie. */
     public record AuthResult(AuthResponse response, String refreshToken) {
     }
 
-    /** Creates a CUSTOMER account and logs it in. Admins are never created through the API. */
+    /** Always a CUSTOMER: admins are never created through the API. */
     @Transactional
     public AuthResult register(RegisterRequest request, String clientIp) {
         rateLimiter.checkAllowed("register:" + clientIp);
@@ -76,11 +68,7 @@ public class AuthService {
         return issueTokens(user);
     }
 
-    /**
-     * Checks email + password with brute-force protection.
-     * noRollbackFor: a failed login throws an exception, but the "failed attempt" counter we
-     * just increased must still be saved, so these exceptions must not undo the transaction.
-     */
+    // noRollbackFor: the failed-attempt counter must be saved even though we throw
     @Transactional(noRollbackFor = AuthException.class)
     public AuthResult login(LoginRequest request, String clientIp) {
         rateLimiter.checkAllowed("login:" + clientIp);
@@ -88,7 +76,7 @@ public class AuthService {
 
         User user = userRepository.findByEmail(normalize(request.email())).orElse(null);
         if (user == null) {
-            passwordEncoder.matches(request.password(), dummyHash);  // same time cost as a real check
+            passwordEncoder.matches(request.password(), dummyHash);
             throw AuthException.invalidCredentials();
         }
         if (user.isLockedAt(now)) {
@@ -105,8 +93,7 @@ public class AuthService {
         return issueTokens(user);
     }
 
-    /** Swaps a valid refresh token for a new access token + new refresh token (rotation). */
-    @Transactional(noRollbackFor = AuthException.class)  // keep "end all sessions" on token reuse
+    @Transactional(noRollbackFor = AuthException.class)  // keep "end all sessions" after token reuse
     public AuthResult refresh(String rawRefreshToken) {
         if (rawRefreshToken == null || rawRefreshToken.isBlank()) {
             throw AuthException.invalidRefreshToken();
@@ -118,7 +105,7 @@ public class AuthService {
         return new AuthResult(body, rotation.newRawToken());
     }
 
-    /** Ends this session. The access token simply expires within 15 minutes. */
+    // The access token can't be revoked; it simply expires within 15 minutes
     @Transactional
     public void logout(String rawRefreshToken) {
         if (rawRefreshToken != null && !rawRefreshToken.isBlank()) {
@@ -132,7 +119,6 @@ public class AuthService {
         return new AuthResult(body, refreshTokenService.create(user));
     }
 
-    /** "  Lina@Example.com " and "lina@example.com" are the same account. */
     static String normalize(String email) {
         return email.trim().toLowerCase(Locale.ROOT);
     }

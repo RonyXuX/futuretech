@@ -98,7 +98,6 @@ class OrderServiceTest {
         assertThat(result.items()).extracting(OrderDto.Line::unitPrice)
                 .containsExactly(new BigDecimal("451.99"), new BigDecimal("79.99"));
 
-        // stock went down
         assertThat(cpu.getStockQuantity()).isEqualTo(4);
         assertThat(mouse.getStockQuantity()).isZero();
 
@@ -193,8 +192,6 @@ class OrderServiceTest {
         assertThat(result.pointsEarned()).isEqualTo(451);
         assertThat(result.items().getFirst().warrantyExpiresOn()).isEqualTo(TODAY.plusMonths(36));
     }
-
-    // ---------------------------------------------------------------- helpers
 
     private static PlaceOrderRequest request(CartItem... items) {
         return new PlaceOrderRequest(List.of(items), SHIPPING);

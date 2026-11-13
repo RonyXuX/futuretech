@@ -30,7 +30,7 @@ public class ProductService {
         this.productSpecsService = productSpecsService;
     }
 
-    /** One page of active products matching the filter. Bad page numbers/sizes are corrected. */
+    /** Bad page numbers and sizes are corrected instead of rejected. */
     @Transactional(readOnly = true)
     public PageResponse<ProductSummaryDto> searchProducts(ProductFilter filter, ProductSort sort, int page, int size) {
         int safePage = Math.max(page, 0);
@@ -42,7 +42,7 @@ public class ProductService {
                 ProductSummaryDto::from);
     }
 
-    /** The full product with its specs. Inactive (hidden) products count as not found. */
+    /** Hidden (inactive) products count as not found. */
     @Transactional(readOnly = true)
     public ProductDetailDto getProduct(Long id) {
         Product product = productRepository.findById(id)
@@ -51,7 +51,6 @@ public class ProductService {
         return ProductDetailDto.from(product, productSpecsService.findSpecs(product));
     }
 
-    /** Brands for the filter dropdown, optionally only those in one category. */
     @Transactional(readOnly = true)
     public List<String> getBrands(String categorySlug) {
         if (categorySlug == null || categorySlug.isBlank()) {

@@ -27,14 +27,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 
 /**
- * Who may call what, and how a request proves who it is.
- *
- * - Every request is checked for an "Authorization: Bearer <JWT>" header. Spring Security
- *   verifies the JWT's signature and expiry for us (the "resource server" support).
- * - No server sessions (STATELESS): the JWT itself says who the user is.
- * - CSRF protection is off: it guards cookie-based logins, and our API is called with the
- *   Bearer header. The one cookie we use (refresh token) is SameSite=Strict and only sent
- *   to /api/auth, so other websites cannot make the browser send it.
+ * Stateless JWT security (see docs/security.md).
+ * CSRF protection is off because API calls use the Bearer header; the only cookie (the refresh
+ * token) is SameSite=Strict and limited to /api/auth, so other sites can't make the browser send it.
  */
 @Configuration
 @EnableConfigurationProperties(SecurityProperties.class)
@@ -50,22 +45,18 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            .cors(Customizer.withDefaults())  // uses corsConfigurationSource() below
+            .cors(Customizer.withDefaults())
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // public: browsing the store and logging in
                 .requestMatchers(HttpMethod.GET, "/api/health", "/api/categories/**", "/api/products/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                 .requestMatchers("/error").permitAll()
-                // admin area: the JWT must carry role ADMIN
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                // everything else (cart checkout, orders, profile, ForgeAI saves): any logged-in user
                 .anyRequest().authenticated())
             .oauth2ResourceServer(rs -> rs.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
         return http.build();
     }
 
-    /** The HMAC key that signs and verifies our JWTs. Too short a key is refused at startup. */
     @Bean
     public SecretKey jwtSigningKey() {
         String secret = props.jwtSecret();
@@ -95,10 +86,7 @@ public class SecurityConfig {
         return converter;
     }
 
-    /**
-     * CORS: lets our Angular app (another address) call the API. allowCredentials is needed
-     * so the browser may send the refresh-token cookie to /api/auth/refresh.
-     */
+    // allowCredentials lets the browser send the refresh-token cookie to /api/auth/refresh
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();

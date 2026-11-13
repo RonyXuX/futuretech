@@ -10,11 +10,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-/**
- * Body of POST /api/orders: the cart and where to ship it.
- * Prices are NOT sent by the client: the server always uses its own current prices,
- * so nobody can change a price in the browser and pay less.
- */
+/** No prices here on purpose: checkout always uses the server's current prices. */
 public record PlaceOrderRequest(
         @NotEmpty @Size(max = 50, message = "can have at most 50 different products")
         List<@Valid @NotNull CartItem> items,

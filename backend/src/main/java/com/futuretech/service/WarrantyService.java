@@ -22,13 +22,12 @@ public class WarrantyService {
         this.clock = clock;
     }
 
-    /** All of the user's warranties: active ones first (ending soonest on top), then expired ones. */
     @Transactional(readOnly = true)
     public List<WarrantyDto> getMyWarranties(Long userId) {
         LocalDate today = LocalDate.now(clock);
         return warrantyRepository.findByOrderItemOrderUserId(userId).stream()
                 .map(w -> WarrantyDto.from(w, today))
-                .sorted(Comparator.comparing(WarrantyDto::status)            // ACTIVE before EXPIRED
+                .sorted(Comparator.comparing(WarrantyDto::status)            // enum order: ACTIVE first
                         .thenComparing(WarrantyDto::expiryDate))
                 .toList();
     }

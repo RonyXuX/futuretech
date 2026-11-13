@@ -8,16 +8,12 @@ import com.futuretech.dto.ProductFilter;
 import com.futuretech.entity.Product;
 import com.futuretech.entity.enums.ProductType;
 
-/**
- * Small reusable WHERE conditions for products. Each method returns one condition;
- * fromFilter() joins together only the ones the user actually asked for.
- */
 public final class ProductSpecifications {
 
     private ProductSpecifications() {
     }
 
-    /** Builds the full condition: always "active", plus each filter that is not null. */
+    /** Always "active", plus one condition per filter that is set. */
     public static Specification<Product> fromFilter(ProductFilter f) {
         Specification<Product> spec = isActive();
         if (f.search() != null && !f.search().isBlank()) {
@@ -48,7 +44,6 @@ public final class ProductSpecifications {
         return (root, query, cb) -> cb.isTrue(root.get("active"));
     }
 
-    /** Case-insensitive "contains" on name or brand, e.g. "rtx" matches "GeForce RTX 5070". */
     public static Specification<Product> nameOrBrandContains(String text) {
         String pattern = "%" + escapeLike(text.trim().toLowerCase()) + "%";
         return (root, query, cb) -> cb.or(

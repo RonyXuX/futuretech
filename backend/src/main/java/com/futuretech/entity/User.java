@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** A customer or admin account. Table is "users" because "user" is reserved in PostgreSQL. */
+// "user" is a reserved word in PostgreSQL
 @Entity
 @Table(name = "users")
 // Only write the columns that actually changed. Otherwise saving e.g. a failed-login counter
@@ -30,7 +30,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    // BCrypt hash, never the plain password
     @Column(nullable = false)
     private String passwordHash;
 
@@ -52,7 +51,6 @@ public class User {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // Brute-force protection: wrong passwords in a row, and until when the account is locked
     @Column(nullable = false)
     private Integer failedLoginAttempts = 0;
 
@@ -67,7 +65,6 @@ public class User {
         return lockedUntil != null && lockedUntil.isAfter(now);
     }
 
-    /** Counts a wrong password; after maxAttempts in a row the account is locked for lockDuration. */
     public void recordFailedLogin(LocalDateTime now, int maxAttempts, Duration lockDuration) {
         failedLoginAttempts++;
         if (failedLoginAttempts >= maxAttempts) {

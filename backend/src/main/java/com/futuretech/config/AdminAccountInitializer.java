@@ -13,11 +13,8 @@ import com.futuretech.entity.enums.Role;
 import com.futuretech.repository.UserRepository;
 
 /**
- * Creates the admin account at startup from environment variables, so the admin password
- * is never written in a SQL file or committed to git.
- *
- * Set ADMIN_EMAIL and ADMIN_PASSWORD before starting the app. If they are not set, or the
- * account already exists, nothing happens.
+ * Creates the admin from ADMIN_EMAIL / ADMIN_PASSWORD, so its password is never in SQL or git.
+ * Does nothing if they are unset or the account already exists.
  */
 @Component
 public class AdminAccountInitializer implements ApplicationRunner {
@@ -46,7 +43,7 @@ public class AdminAccountInitializer implements ApplicationRunner {
             return;
         }
         if (userRepository.existsByEmail(adminEmail)) {
-            return;  // already created on an earlier start
+            return;
         }
         User admin = new User();
         admin.setEmail(adminEmail);

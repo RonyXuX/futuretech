@@ -1,10 +1,6 @@
 package com.futuretech.dto.auth;
 
-/**
- * Returned by register, login and refresh. The frontend keeps the access token in memory and
- * sends it as "Authorization: Bearer <accessToken>". The refresh token is NOT in this body:
- * it is set as an httpOnly cookie that JavaScript cannot read.
- */
+/** The refresh token is deliberately not in here: it is sent as an HttpOnly cookie. */
 public record AuthResponse(String accessToken, String tokenType, long expiresInSeconds, UserDto user) {
 
     public static AuthResponse bearer(String accessToken, long expiresInSeconds, UserDto user) {

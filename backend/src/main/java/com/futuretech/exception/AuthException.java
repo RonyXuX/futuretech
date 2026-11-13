@@ -4,10 +4,7 @@ import java.time.Duration;
 
 import org.springframework.http.HttpStatus;
 
-/**
- * Every login/registration failure, each with the HTTP status it becomes.
- * retryAfter is set when the client must wait (sent as the "Retry-After" header).
- */
+/** retryAfter becomes the Retry-After header. */
 public class AuthException extends RuntimeException {
 
     private final HttpStatus status;

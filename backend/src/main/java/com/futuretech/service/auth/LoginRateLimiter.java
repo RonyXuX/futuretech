@@ -12,12 +12,8 @@ import com.futuretech.config.SecurityProperties;
 import com.futuretech.exception.AuthException;
 
 /**
- * Limits login/register attempts per IP address: at most N per minute ("fixed window").
- * This stops one machine from trying thousands of passwords, even across many accounts,
- * which the per-account lock alone would not catch.
- *
- * Kept in memory: fine for one server. With several servers it would move to a shared
- * store such as Redis.
+ * Per-IP fixed window: catches one machine trying many accounts, which the per-account lock misses.
+ * In memory, so it only works for a single server (several would need e.g. Redis).
  */
 @Component
 public class LoginRateLimiter {
@@ -33,11 +29,9 @@ public class LoginRateLimiter {
         this.clock = clock;
     }
 
-    /** Attempts made from one key (e.g. "login:192.168.0.5") since the window started. */
     private record Window(Instant start, int count) {
     }
 
-    /** Counts one attempt; throws 429 Too Many Requests when the limit is passed. */
     public void checkAllowed(String key) {
         Instant now = clock.instant();
         // compute() runs atomically per key, so two parallel requests can't both slip through

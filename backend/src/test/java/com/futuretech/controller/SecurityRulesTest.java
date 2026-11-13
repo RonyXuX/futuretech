@@ -29,10 +29,6 @@ import com.futuretech.service.UserService;
 import com.futuretech.service.auth.JwtService;
 import com.futuretech.support.TestSecurity;
 
-/**
- * Checks the access rules in SecurityConfig with real HTTP requests: what is public, what
- * needs a login, what needs the ADMIN role, and that bad tokens are refused.
- */
 @WebMvcTest({MeController.class, ProductController.class})
 @Import(SecurityConfig.class)
 @TestPropertySource(properties = TestSecurity.JWT_SECRET_PROPERTY)

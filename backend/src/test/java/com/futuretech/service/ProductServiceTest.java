@@ -32,7 +32,6 @@ import com.futuretech.entity.enums.ProductType;
 import com.futuretech.exception.ResourceNotFoundException;
 import com.futuretech.repository.ProductRepository;
 
-/** Unit tests: the repositories are replaced by Mockito fakes, so no database is needed. */
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
 
@@ -112,7 +111,6 @@ class ProductServiceTest {
         assertThat(productService.getBrands("cases")).containsExactly("NZXT");
     }
 
-    /** A small in-memory CPU product for the tests. */
     private static Product cpu(Long id) {
         Category category = new Category();
         category.setId(1L);

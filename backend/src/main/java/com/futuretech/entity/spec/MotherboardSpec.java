@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Motherboard details used by the Socket, RAM-type and Case-size rules. */
 @Entity
 @Table(name = "motherboard_specs")
 @Getter

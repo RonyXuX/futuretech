@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import com.futuretech.entity.Order;
 import com.futuretech.entity.enums.OrderStatus;
 
-/** One row of the order history list. */
 public record OrderSummaryDto(Long id, OrderStatus status, BigDecimal totalAmount, int itemCount,
                               LocalDateTime createdAt) {
 

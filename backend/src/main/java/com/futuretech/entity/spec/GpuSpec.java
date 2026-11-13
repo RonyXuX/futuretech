@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Graphics card details used by the GPU-length and PSU-wattage rules. */
 @Entity
 @Table(name = "gpu_specs")
 @Getter

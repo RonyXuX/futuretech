@@ -2,7 +2,7 @@ package com.futuretech.dto;
 
 import org.springframework.data.domain.Sort;
 
-/** Sort options for GET /api/products?sort=... (value must be written in capitals). */
+/** Values must be sent in capitals, e.g. ?sort=PRICE_ASC. */
 public enum ProductSort {
 
     NEWEST(Sort.by(Sort.Direction.DESC, "createdAt")),

@@ -19,13 +19,7 @@ import com.futuretech.service.auth.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-/**
- * Login endpoints. The access token goes in the JSON body; the refresh token goes in a cookie:
- * - HttpOnly: JavaScript can't read it, so an injected script (XSS) can't steal it
- * - SameSite=Strict: the browser never sends it with requests started by other websites
- * - Path=/api/auth: it's only sent to these endpoints, not with every API call
- * - Secure (in production): only sent over HTTPS
- */
+/** The access token goes in the body; the refresh token only ever travels in the cookie built below. */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -40,28 +34,24 @@ public class AuthController {
         this.props = props;
     }
 
-    /** POST /api/auth/register - create a customer account (and log in). 201 Created. */
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest body, HttpServletRequest request) {
         AuthService.AuthResult result = authService.register(body, request.getRemoteAddr());
         return withRefreshCookie(ResponseEntity.status(HttpStatus.CREATED), result);
     }
 
-    /** POST /api/auth/login - email + password. */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest body, HttpServletRequest request) {
         AuthService.AuthResult result = authService.login(body, request.getRemoteAddr());
         return withRefreshCookie(ResponseEntity.ok(), result);
     }
 
-    /** POST /api/auth/refresh - new access token from the refresh cookie (the frontend calls this when the JWT expires). */
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@CookieValue(name = REFRESH_COOKIE, required = false) String refreshToken) {
         AuthService.AuthResult result = authService.refresh(refreshToken);
         return withRefreshCookie(ResponseEntity.ok(), result);
     }
 
-    /** POST /api/auth/logout - ends the session and deletes the cookie. 204 No Content. */
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@CookieValue(name = REFRESH_COOKIE, required = false) String refreshToken) {
         authService.logout(refreshToken);

@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Power supply details used by the PSU-wattage and PSU-size rules. */
 @Entity
 @Table(name = "psu_specs")
 @Getter
@@ -27,14 +26,12 @@ public class PsuSpec {
     @Column(nullable = false)
     private Integer wattage;
 
-    // e.g. "80+ Gold"
     @Column(nullable = false)
     private String efficiencyRating;
 
     @Column(nullable = false)
     private Boolean modular;
 
-    // ATX or the smaller SFX (for small ITX cases)
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PsuFormFactor formFactor = PsuFormFactor.ATX;

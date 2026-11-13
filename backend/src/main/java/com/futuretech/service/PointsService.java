@@ -14,11 +14,7 @@ import com.futuretech.entity.enums.PointReason;
 import com.futuretech.repository.PointTransactionRepository;
 import com.futuretech.repository.UserRepository;
 
-/**
- * The points rule lives here and only here: 1 point per whole dollar of the order total.
- * Every change is written to the ledger (point_transactions) AND added to the cached
- * balance on the user, in the caller's transaction.
- */
+/** The only place with the points rule: 1 point per whole dollar. Writes ledger + cached balance. */
 @Service
 public class PointsService {
 
@@ -35,14 +31,13 @@ public class PointsService {
         return total.setScale(0, RoundingMode.FLOOR).intValueExact();
     }
 
-    /** Called at checkout. Returns the points earned. */
     public int awardForOrder(Order order) {
         int points = pointsFor(order.getTotalAmount());
         record(order, points, PointReason.EARNED_PURCHASE);
         return points;
     }
 
-    /** Called when an order is cancelled: takes back whatever the order is still worth. */
+    /** Takes back what the order is still worth (net, so admin adjustments are respected). */
     public void reverseForOrder(Order order) {
         int remaining = transactions.sumForOrder(order.getId());
         if (remaining > 0) {
@@ -50,12 +45,10 @@ public class PointsService {
         }
     }
 
-    /** Net points of one order (0 for a cancelled order). */
     public int pointsForOrder(Long orderId) {
         return transactions.sumForOrder(orderId);
     }
 
-    /** GET /api/me/points: balance + every change, newest first. */
     @Transactional(readOnly = true)
     public PointsHistoryDto getHistory(Long userId) {
         int balance = userRepository.findById(userId).map(User::getPointsBalance).orElse(0);

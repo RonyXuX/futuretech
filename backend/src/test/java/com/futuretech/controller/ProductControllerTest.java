@@ -37,10 +37,6 @@ import com.futuretech.entity.enums.ProductType;
 import com.futuretech.exception.ResourceNotFoundException;
 import com.futuretech.service.ProductService;
 
-/**
- * Web-layer tests: starts only the controller, the error handler and the security/CORS config
- * (no database), and sends fake HTTP requests with MockMvc. The service is a Mockito fake.
- */
 @WebMvcTest(ProductController.class)
 @Import(SecurityConfig.class)
 @TestPropertySource(properties = TestSecurity.JWT_SECRET_PROPERTY)

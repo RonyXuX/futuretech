@@ -4,10 +4,7 @@ import java.math.BigDecimal;
 
 import com.futuretech.entity.enums.ProductType;
 
-/**
- * The optional filters of GET /api/products. Every field may be null, which means
- * "don't filter on this".
- */
+/** A null field means "don't filter on this". */
 public record ProductFilter(
         String search,         // matches name or brand, case-insensitive
         String categorySlug,

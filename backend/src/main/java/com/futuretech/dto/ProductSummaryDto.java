@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import com.futuretech.entity.Product;
 import com.futuretech.entity.enums.ProductType;
 
-/** The short version of a product, used in product lists (no description, no specs). */
 public record ProductSummaryDto(
         Long id,
         String sku,
@@ -20,7 +19,7 @@ public record ProductSummaryDto(
         Integer performanceScore,
         String imageUrl) {
 
-    /** Must be called inside a transaction, because product.getCategory() is loaded lazily. */
+    /** Needs an open transaction: the category is lazy. */
     public static ProductSummaryDto from(Product p) {
         return new ProductSummaryDto(
                 p.getId(), p.getSku(), p.getName(), p.getBrand(), p.getPrice(),

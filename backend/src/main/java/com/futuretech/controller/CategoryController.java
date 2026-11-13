@@ -19,7 +19,6 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    /** GET /api/categories - all categories, sorted by name. */
     @GetMapping
     public List<CategoryDto> getCategories() {
         return categoryService.getAllCategories();

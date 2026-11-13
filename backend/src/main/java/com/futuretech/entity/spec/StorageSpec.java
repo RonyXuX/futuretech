@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** SSD / HDD details (display and filtering). */
 @Entity
 @Table(name = "storage_specs")
 @Getter

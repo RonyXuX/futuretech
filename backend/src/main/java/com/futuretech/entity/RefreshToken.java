@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** The stored (hashed) form of a refresh token. The raw token only ever exists in the user's cookie. */
+/** Only the SHA-256 hash is stored; the raw token exists only in the user's cookie. */
 @Entity
 @Table(name = "refresh_tokens")
 @Getter
@@ -23,7 +23,6 @@ public class RefreshToken {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // SHA-256 of the raw token, as 64 hex characters
     @Column(nullable = false, unique = true)
     private String tokenHash;
 

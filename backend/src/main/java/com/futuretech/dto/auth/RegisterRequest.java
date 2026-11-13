@@ -4,10 +4,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * Body of POST /api/auth/register. The annotations are checked automatically (@Valid in the
- * controller); a broken rule returns 400 with the field name and message.
- */
 public record RegisterRequest(
         @NotBlank @Email @Size(max = 255)
         String email,

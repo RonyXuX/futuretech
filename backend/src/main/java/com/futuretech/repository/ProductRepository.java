@@ -19,19 +19,13 @@ import org.springframework.data.repository.query.Param;
 import com.futuretech.entity.Product;
 import com.futuretech.entity.enums.ProductType;
 
-/**
- * JpaSpecificationExecutor adds findAll(Specification, Pageable), which lets us build the
- * WHERE clause from whichever filters the user chose (see ProductSpecifications).
- */
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
     Optional<Product> findBySku(String sku);
 
     /**
-     * Loads products and LOCKS their rows until the transaction ends (SELECT ... FOR UPDATE).
-     * Used at checkout: if two customers buy the last unit at the same moment, the second one
-     * waits, then sees stock 0, so we never sell more than we have.
-     * Sorted by id so two checkouts always lock rows in the same order (no deadlock).
+     * SELECT ... FOR UPDATE: a second checkout of the same product waits, then sees the new stock,
+     * so we never oversell. Ordered by id so checkouts always lock in the same order (no deadlock).
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Product p WHERE p.id IN :ids ORDER BY p.id")
@@ -39,15 +33,11 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     List<Product> findByProductTypeAndActiveTrue(ProductType productType);
 
-    /**
-     * Same as the inherited method, but @EntityGraph loads each product's category in the
-     * same query. Without it, showing 20 products would run 20 extra category queries.
-     */
+    // Loads the category in the same query (otherwise one extra query per product)
     @Override
     @EntityGraph(attributePaths = "category")
     Page<Product> findAll(Specification<Product> spec, Pageable pageable);
 
-    // Brand lists for the filter dropdown (only brands that have active products)
     @Query("SELECT DISTINCT p.brand FROM Product p WHERE p.active = true ORDER BY p.brand")
     List<String> findActiveBrands();
 

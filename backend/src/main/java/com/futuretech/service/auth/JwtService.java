@@ -13,11 +13,7 @@ import org.springframework.stereotype.Service;
 import com.futuretech.config.SecurityProperties;
 import com.futuretech.entity.User;
 
-/**
- * Creates the short-lived access token (a signed JWT). Its content can be read by anyone,
- * but it can't be changed without breaking the signature, so it never holds secrets.
- * Claims: sub = user id, email, role (CUSTOMER / ADMIN), iat / exp = issued / expires.
- */
+/** Anyone can read a JWT's claims (only the signature is protected), so it never holds secrets. */
 @Service
 public class JwtService {
 

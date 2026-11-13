@@ -10,10 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Anything we sell. Type-specific details (socket, wattage, ...) live in a separate
- * spec entity (CpuSpec, GpuSpec, ...) that points back to this product.
- */
+/** Type-specific details (socket, wattage, ...) live in the spec entities (CpuSpec, ...). */
 @Entity
 @Table(name = "products")
 @Getter
@@ -44,7 +41,6 @@ public class Product {
     @Column(nullable = false)
     private Integer stockQuantity = 0;
 
-    // LAZY: the category is only loaded from the DB when getCategory() is actually used
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id")
     private Category category;

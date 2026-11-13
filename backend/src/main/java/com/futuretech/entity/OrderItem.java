@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** One line of an order: which product, how many, and the price paid per unit. */
 @Entity
 @Table(name = "order_items")
 @Getter

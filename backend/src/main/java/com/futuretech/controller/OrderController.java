@@ -20,7 +20,6 @@ import com.futuretech.service.OrderService;
 
 import jakarta.validation.Valid;
 
-/** The logged-in customer's orders. The user id always comes from the JWT, never from the URL. */
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -31,7 +30,6 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    /** POST /api/orders - checkout. 201 Created + the new order. */
     @PostMapping
     public ResponseEntity<OrderDto> placeOrder(@AuthenticationPrincipal Jwt jwt,
                                                @Valid @RequestBody PlaceOrderRequest request) {
@@ -39,19 +37,16 @@ public class OrderController {
         return ResponseEntity.created(URI.create("/api/orders/" + order.id())).body(order);
     }
 
-    /** GET /api/orders - my order history. */
     @GetMapping
     public List<OrderSummaryDto> myOrders(@AuthenticationPrincipal Jwt jwt) {
         return orderService.getMyOrders(userId(jwt));
     }
 
-    /** GET /api/orders/{id} - one of my orders. */
     @GetMapping("/{id}")
     public OrderDto myOrder(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id) {
         return orderService.getMyOrder(userId(jwt), id);
     }
 
-    /** POST /api/orders/{id}/cancel - only while the order is still PLACED. */
     @PostMapping("/{id}/cancel")
     public OrderDto cancel(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id) {
         return orderService.cancelMyOrder(userId(jwt), id);

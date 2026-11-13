@@ -105,7 +105,7 @@ Its main feature is **ForgeAI**, a PC-building engine.
   - V5 demo customers, orders, warranties, points, one saved build (`docs/demo-accounts.md`)
   - All entities + repositories. ERD in `docs/erd.md`.
   - Admin is created at startup from `ADMIN_EMAIL` / `ADMIN_PASSWORD`
-    (`AdminAccountInitializer`); `spring-security-crypto` provides BCrypt.
+    (`AdminAccountInitializer`).
 - Decisions:
   - Cart lives in the frontend only.
   - Points: 1 point per whole dollar of the order total.
@@ -134,6 +134,8 @@ Its main feature is **ForgeAI**, a PC-building engine.
     - Shared `@StrongPassword` rule
   - Env vars to run: `DB_PASSWORD`, `JWT_SECRET` (required); `ADMIN_EMAIL`/`ADMIN_PASSWORD` (optional).
 - Not yet verified against the real DB: V2-V6 and the API (unit/web tests pass without DB).
-  Commits after 693b190 are local only, not pushed yet.
+  Everything is pushed to GitHub (RonyXuX/futuretech).
+- Comment style: only "why" comments (decisions, traps, non-obvious rules); no comments that
+  repeat the code or the URL mapping. Never edit migration files (Flyway checksums).
 - Next: B4 admin (products with specs, customers, orders status, points adjustments), then
   B5 rule engine, B6 saved builds, B7 AI recommendations, B8 budget optimizer.

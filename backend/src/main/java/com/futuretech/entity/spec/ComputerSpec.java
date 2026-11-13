@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Summary specs for pre-built laptops and desktops (display and filtering only). */
 @Entity
 @Table(name = "computer_specs")
 @Getter

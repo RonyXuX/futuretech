@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** One part in a saved build. */
 @Entity
 @Table(name = "build_items")
 @Getter
@@ -25,7 +24,6 @@ public class BuildItem {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    // e.g. 2 when the build uses two identical SSDs
     @Column(nullable = false)
     private Integer quantity = 1;
 }

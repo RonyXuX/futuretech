@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** Warranty for one purchased order line. Created at checkout from product.warrantyMonths. */
 @Entity
 @Table(name = "warranties")
 @Getter
@@ -29,7 +28,7 @@ public class Warranty {
     @Column(nullable = false)
     private LocalDate expiryDate;
 
-    /** Status is computed, not stored, so it can never be out of date. */
+    /** Computed instead of stored, so it can never be out of date. The expiry day still counts. */
     public boolean isActiveOn(LocalDate date) {
         return !date.isAfter(expiryDate);
     }

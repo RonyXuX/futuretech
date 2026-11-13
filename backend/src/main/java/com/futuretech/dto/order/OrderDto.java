@@ -11,7 +11,6 @@ import com.futuretech.entity.OrderItem;
 import com.futuretech.entity.Warranty;
 import com.futuretech.entity.enums.OrderStatus;
 
-/** A full order: lines, shipping, points earned and each line's warranty end date. */
 public record OrderDto(
         Long id,
         OrderStatus status,
@@ -25,10 +24,7 @@ public record OrderDto(
                        BigDecimal lineTotal, LocalDate warrantyExpiresOn) {
     }
 
-    /**
-     * @param warrantiesByItemId warranty of each order line (missing for cancelled orders)
-     * Must be called inside a transaction (items and products are loaded lazily).
-     */
+    /** warrantiesByItemId is empty for cancelled orders. Needs an open transaction (lazy items). */
     public static OrderDto from(Order o, int pointsEarned, Map<Long, Warranty> warrantiesByItemId) {
         List<Line> lines = o.getItems().stream().map(i -> line(i, warrantiesByItemId.get(i.getId()))).toList();
         PlaceOrderRequest.Shipping shipping = new PlaceOrderRequest.Shipping(

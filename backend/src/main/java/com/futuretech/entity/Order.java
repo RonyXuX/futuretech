@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** A placed order (fake checkout). Table is "orders" because "order" is reserved in SQL. */
+// "order" is a reserved word in SQL
 @Entity
 @Table(name = "orders")
 @Getter
@@ -35,7 +35,7 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
-    // Shipping details copied at checkout
+    // Shipping details are copied at checkout so old orders never change
     @Column(nullable = false)
     private String shippingFullName;
 
@@ -51,7 +51,6 @@ public class Order {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // Saving an order also saves its items (cascade); removing an item from the list deletes it
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 

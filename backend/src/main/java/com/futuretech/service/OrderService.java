@@ -29,10 +29,7 @@ import com.futuretech.repository.ProductRepository;
 import com.futuretech.repository.UserRepository;
 import com.futuretech.repository.WarrantyRepository;
 
-/**
- * Checkout and the customer's own orders. Every public method takes the logged-in user's id
- * (from the JWT) and only ever touches that user's orders.
- */
+/** Every method gets the user id from the JWT and only touches that user's orders. */
 @Service
 public class OrderService {
 
@@ -56,17 +53,13 @@ public class OrderService {
         this.clock = clock;
     }
 
-    /**
-     * Fake checkout, all in ONE transaction: if anything fails, nothing is saved.
-     * 1. lock the products, 2. check availability and stock, 3. create the order with today's
-     * prices, 4. reduce stock, 5. create warranties, 6. award points.
-     */
+    /** One transaction: lock products, check stock, snapshot prices, reduce stock, warranties, points. */
     @Transactional
     public OrderDto placeOrder(Long userId, PlaceOrderRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User " + userId + " not found"));
 
-        // The same product twice in the cart becomes one line
+        // the same product twice in the cart becomes one line
         Map<Long, Integer> quantities = new LinkedHashMap<>();
         for (PlaceOrderRequest.CartItem item : request.items()) {
             quantities.merge(item.productId(), item.quantity(), Integer::sum);
@@ -92,21 +85,20 @@ public class OrderService {
             OrderItem item = new OrderItem();
             item.setProduct(product);
             item.setQuantity(quantity);
-            item.setUnitPrice(product.getPrice());   // price snapshot: later price changes don't affect this order
+            item.setUnitPrice(product.getPrice());   // snapshot
             order.addItem(item);
 
             product.setStockQuantity(product.getStockQuantity() - quantity);
             total = total.add(item.getLineTotal());
         }
         order.setTotalAmount(total);
-        orderRepository.save(order);  // also saves the items (cascade), which gives them ids
+        orderRepository.save(order);  // cascades to the items and gives them ids
 
         List<Warranty> warranties = createWarranties(order);
         int points = pointsService.awardForOrder(order);
         return OrderDto.from(order, points, byItemId(warranties));
     }
 
-    /** The user's order history, newest first. */
     @Transactional(readOnly = true)
     public List<OrderSummaryDto> getMyOrders(Long userId) {
         return orderRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
@@ -114,7 +106,6 @@ public class OrderService {
                 .toList();
     }
 
-    /** One of the user's orders, or 404 (also when the order belongs to someone else). */
     @Transactional(readOnly = true)
     public OrderDto getMyOrder(Long userId, Long orderId) {
         Order order = orderRepository.findByIdAndUserId(orderId, userId)
@@ -122,10 +113,7 @@ public class OrderService {
         return toDto(order);
     }
 
-    /**
-     * Cancel an order that hasn't shipped yet: stock goes back on the shelf, its warranties
-     * are removed, and its points are taken back.
-     */
+    /** Only while PLACED: restores stock, removes the warranties and takes the points back. */
     @Transactional
     public OrderDto cancelMyOrder(Long userId, Long orderId) {
         Order order = orderRepository.findWithLockByIdAndUserId(orderId, userId)
@@ -148,9 +136,7 @@ public class OrderService {
         return OrderDto.from(order, 0, Map.of());
     }
 
-    // ---------------------------------------------------------------- helpers
-
-    /** Collects EVERY problem first, so the customer can fix the whole cart in one go. */
+    /** Collects every problem first, so the customer can fix the whole cart at once. */
     private void checkAvailability(Map<Long, Integer> quantities, Map<Long, Product> products) {
         List<String> problems = new ArrayList<>();
         quantities.forEach((productId, quantity) -> {
@@ -169,7 +155,6 @@ public class OrderService {
         }
     }
 
-    /** One warranty per order line: from today until today + the product's warranty period. */
     private List<Warranty> createWarranties(Order order) {
         LocalDate today = LocalDate.now(clock);
         List<Warranty> warranties = new ArrayList<>();
