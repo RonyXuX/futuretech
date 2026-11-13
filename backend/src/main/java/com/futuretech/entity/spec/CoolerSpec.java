@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** CPU cooler details used by the Cooler-height and Socket rules. */
+/** CPU cooler details used by the Cooler-height, Radiator and Socket rules. */
 @Entity
 @Table(name = "cooler_specs")
 @Getter
@@ -33,6 +33,9 @@ public class CoolerSpec {
 
     // Only set for AIR coolers (liquid coolers mount a radiator instead)
     private Integer heightMm;
+
+    // Only set for LIQUID coolers: radiator length, e.g. 240 or 360
+    private Integer radiatorMm;
 
     // A simple list of strings stored in its own table (cooler_supported_sockets)
     @ElementCollection

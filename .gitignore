@@ -13,3 +13,6 @@ Thumbs.db
 
 # Frontend (Angular, added later)
 node_modules/
+
+# Raw import data (kept local, never pushed)
+data_import/

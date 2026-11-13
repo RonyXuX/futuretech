@@ -2,13 +2,14 @@ package com.futuretech.entity.spec;
 
 import com.futuretech.entity.Product;
 import com.futuretech.entity.enums.FormFactor;
+import com.futuretech.entity.enums.PsuFormFactor;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** PC case clearances used by the Case-size, GPU-length and Cooler-height rules. */
+/** PC case clearances used by the Case-size, GPU-length, Cooler-height, PSU-size and Radiator rules. */
 @Entity
 @Table(name = "case_specs")
 @Getter
@@ -34,4 +35,13 @@ public class CaseSpec {
 
     @Column(nullable = false)
     private Integer maxCoolerHeightMm;
+
+    // Largest PSU that fits; SFX also fits in ATX cases
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PsuFormFactor maxPsuFormFactor = PsuFormFactor.ATX;
+
+    // Largest liquid-cooler radiator the case can mount; 0 = none
+    @Column(nullable = false)
+    private Integer maxRadiatorMm = 0;
 }

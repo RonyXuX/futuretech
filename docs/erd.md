@@ -1,6 +1,8 @@
 # FutureTech ERD
 
-Source of truth: `backend/src/main/resources/db/migration/V1__create_schema.sql`.
+Source of truth: the Flyway migrations in `backend/src/main/resources/db/migration/`
+(V1 creates the schema, V2 loads the catalog, V3 adds the PSU-size and radiator columns,
+V4 adds saved builds, V5 loads demo customers and orders).
 GitHub and VS Code (with a Mermaid extension) render this diagram.
 
 ```mermaid
@@ -12,6 +14,9 @@ erDiagram
     products ||--o{ order_items : "sold as"
     order_items ||--|| warranties : "covered by"
     categories ||--o{ products : groups
+    users ||--o{ saved_builds : saves
+    saved_builds ||--|{ build_items : contains
+    products ||--o{ build_items : "used in"
 
     products ||--o| cpu_specs : has
     products ||--o| motherboard_specs : has
@@ -101,17 +106,21 @@ erDiagram
         int wattage
         varchar efficiency_rating
         boolean modular
+        varchar form_factor
     }
     case_specs {
         bigint product_id PK,FK
         varchar max_motherboard_form_factor
         int max_gpu_length_mm
         int max_cooler_height_mm
+        varchar max_psu_form_factor
+        int max_radiator_mm
     }
     cooler_specs {
         bigint product_id PK,FK
         varchar cooler_type
         int height_mm
+        int radiator_mm
     }
     cooler_supported_sockets {
         bigint cooler_id PK,FK
@@ -149,6 +158,21 @@ erDiagram
         bigint order_item_id FK,UK
         date start_date
         date expiry_date
+    }
+    saved_builds {
+        bigint id PK
+        bigint user_id FK
+        varchar name
+        varchar source
+        varchar use_case
+        numeric budget
+        timestamp created_at
+    }
+    build_items {
+        bigint id PK
+        bigint build_id FK
+        bigint product_id FK
+        int quantity
     }
     point_transactions {
         bigint id PK
