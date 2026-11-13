@@ -108,6 +108,84 @@
       }
     },
     {
+      "name": "Me - update profile",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/me",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstName\": \"Lina\",\n  \"lastName\": \"Haddad\",\n  \"phone\": \"+961 70 000 001\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Me - points history",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/me/points"
+      }
+    },
+    {
+      "name": "Me - warranties (active first)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/me/warranties"
+      }
+    },
+    {
+      "name": "Me - change password (logs out other devices)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{accessToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/me/password",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"currentPassword\": \"Demo@2026\",\n  \"newPassword\": \"NewDemo2026\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
       "name": "Auth - refresh (uses the cookie)",
       "event": [
         {

@@ -35,6 +35,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    /** 400 for one wrong field, in the same shape as validation errors. */
+    @ExceptionHandler(InvalidInputException.class)
+    public ProblemDetail handleInvalidInput(InvalidInputException ex) {
+        ProblemDetail body = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Some fields are invalid.");
+        body.setProperty("errors", Map.of(ex.getField(), ex.getMessage()));
+        return body;
+    }
+
     /** 409: e.g. not enough stock. Adds a "problems" list when there are several reasons. */
     @ExceptionHandler(ConflictException.class)
     public ProblemDetail handleConflict(ConflictException ex) {

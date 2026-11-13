@@ -4,8 +4,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.futuretech.dto.account.PointsHistoryDto;
 import com.futuretech.entity.Order;
+import com.futuretech.entity.User;
 import com.futuretech.entity.PointTransaction;
 import com.futuretech.entity.enums.PointReason;
 import com.futuretech.repository.PointTransactionRepository;
@@ -50,6 +53,15 @@ public class PointsService {
     /** Net points of one order (0 for a cancelled order). */
     public int pointsForOrder(Long orderId) {
         return transactions.sumForOrder(orderId);
+    }
+
+    /** GET /api/me/points: balance + every change, newest first. */
+    @Transactional(readOnly = true)
+    public PointsHistoryDto getHistory(Long userId) {
+        int balance = userRepository.findById(userId).map(User::getPointsBalance).orElse(0);
+        return new PointsHistoryDto(balance, transactions.findByUserIdOrderByCreatedAtDescIdDesc(userId).stream()
+                .map(PointsHistoryDto.Entry::from)
+                .toList());
     }
 
     private void record(Order order, int points, PointReason reason) {

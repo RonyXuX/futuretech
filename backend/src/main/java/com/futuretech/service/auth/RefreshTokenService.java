@@ -82,6 +82,11 @@ public class RefreshTokenService {
         return new Rotation(token.getUser(), create(token.getUser()));
     }
 
+    /** Logs the user out everywhere (e.g. after a password change). */
+    public void revokeAllForUser(Long userId) {
+        repository.revokeAllForUser(userId, LocalDateTime.now(clock));
+    }
+
     /** Logout: the token can't be used again. Unknown or already used tokens are ignored. */
     public void revoke(String rawToken) {
         repository.findByTokenHash(hash(rawToken))

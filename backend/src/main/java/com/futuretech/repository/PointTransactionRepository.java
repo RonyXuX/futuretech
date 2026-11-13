@@ -10,7 +10,8 @@ import com.futuretech.entity.PointTransaction;
 
 public interface PointTransactionRepository extends JpaRepository<PointTransaction, Long> {
 
-    List<PointTransaction> findByUserIdOrderByCreatedAtDesc(Long userId);
+    // newest first; the id breaks ties between entries made at the same moment
+    List<PointTransaction> findByUserIdOrderByCreatedAtDescIdDesc(Long userId);
 
     /** Net points an order is currently worth: earned at checkout minus anything taken back. */
     @Query("SELECT COALESCE(SUM(t.points), 0) FROM PointTransaction t WHERE t.order.id = :orderId")

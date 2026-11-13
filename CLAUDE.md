@@ -126,8 +126,14 @@ Its main feature is **ForgeAI**, a PC-building engine.
     - `POST /api/orders/{id}/cancel` (only PLACED: restores stock, removes warranties,
       reverses points)
     - Points rule lives only in `PointsService`
+  - Done: B3 profile:
+    - `PUT /api/me` (name, phone; email is fixed)
+    - `PUT /api/me/password` (needs the current password; logs out all devices)
+    - `GET /api/me/points` (balance + history)
+    - `GET /api/me/warranties` (ACTIVE/EXPIRED + days left)
+    - Shared `@StrongPassword` rule
   - Env vars to run: `DB_PASSWORD`, `JWT_SECRET` (required); `ADMIN_EMAIL`/`ADMIN_PASSWORD` (optional).
 - Not yet verified against the real DB: V2-V6 and the API (unit/web tests pass without DB).
   Commits after 693b190 are local only, not pushed yet.
-- Next: B3 profile (edit profile, points history, warranties), then B4 admin, B5 rule engine,
-  B6 saved builds, B7 AI recommendations, B8 budget optimizer.
+- Next: B4 admin (products with specs, customers, orders status, points adjustments), then
+  B5 rule engine, B6 saved builds, B7 AI recommendations, B8 budget optimizer.

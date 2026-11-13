@@ -50,6 +50,12 @@ class SecurityRulesTest {
     @MockitoBean
     private ProductService productService;
 
+    @MockitoBean
+    private com.futuretech.service.PointsService pointsService;
+
+    @MockitoBean
+    private com.futuretech.service.WarrantyService warrantyService;
+
     @Test
     void browsingProducts_needsNoLogin() throws Exception {
         when(productService.searchProducts(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
