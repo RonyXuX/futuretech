@@ -1,0 +1,88 @@
+<section class="hero">
+  <h1>Machines, parts &amp; <span>everything in between</span></h1>
+  <p>Laptops, prebuilt desktops, accessories and individual components, all in one place.</p>
+  <a class="cta" routerLink="/" fragment="shop" queryParamsHandling="preserve">Browse the store</a>
+</section>
+
+<main class="shop-main">
+  <section class="shop" id="shop">
+    <div class="section-head">
+      <h2>Shop</h2>
+      <p>Filter by category to find what you need.</p>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <a
+        class="tab"
+        role="tab"
+        routerLink="/"
+        [queryParams]="categoryParams(null)"
+        fragment="shop"
+        [class.active]="!category()"
+        [attr.aria-selected]="!category()">
+        All
+      </a>
+      @for (c of categories(); track c.slug) {
+        <a
+          class="tab"
+          role="tab"
+          routerLink="/"
+          [queryParams]="categoryParams(c.slug)"
+          fragment="shop"
+          [class.active]="category() === c.slug"
+          [attr.aria-selected]="category() === c.slug">
+          {{ c.name }}
+        </a>
+      }
+    </div>
+
+    @let s = state();
+    @if (s.status === 'loading') {
+      <p class="status">Loading products…</p>
+    } @else if (s.status === 'error') {
+      <p class="status error">Couldn't load products. Make sure the backend is running on port 8080.</p>
+    } @else {
+      @if (s.page.content.length === 0) {
+        <p class="status">No products in this category yet.</p>
+      }
+
+      <div class="grid">
+        @for (product of s.page.content; track product.id) {
+          <article class="card">
+            <div class="thumb">
+              @if (product.imageUrl) {
+                <img [src]="product.imageUrl" [alt]="product.name" />
+              } @else {
+                {{ iconFor(product) }}
+              }
+            </div>
+            <span class="tag">{{ product.categoryName }}</span>
+            <h3>{{ product.name }}</h3>
+            <p class="brand">{{ product.brand }}</p>
+            <p class="stock" [class.out]="!product.inStock">
+              {{ product.inStock ? 'In stock' : 'Out of stock' }}
+            </p>
+            <div class="foot">
+              <span class="price">{{ product.price | currency:'USD':'symbol':'1.0-0' }}</span>
+              <button class="add" [disabled]="!product.inStock" (click)="addToCart(product)">
+                {{ justAdded() === product.id ? 'Added ✓' : 'Add to cart' }}
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+
+      @if (s.page.totalPages > 1) {
+        <nav class="pager" aria-label="Pages">
+          @if (s.page.page > 0) {
+            <a routerLink="/" [queryParams]="pageParams(s.page.page - 1)" queryParamsHandling="merge" fragment="shop">← Previous</a>
+          }
+          <span>Page {{ s.page.page + 1 }} of {{ s.page.totalPages }}</span>
+          @if (s.page.page < s.page.totalPages - 1) {
+            <a routerLink="/" [queryParams]="pageParams(s.page.page + 1)" queryParamsHandling="merge" fragment="shop">Next →</a>
+          }
+        </nav>
+      }
+    }
+  </section>
+</main>

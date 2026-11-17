@@ -1,0 +1,25 @@
+<header class="nav">
+  <a routerLink="/" class="logo">Forge<span>Computers</span></a>
+
+  <nav class="links">
+    <!-- Ignoring query params/fragment keeps "Shop" highlighted while a category filter is applied. -->
+    <a
+      routerLink="/"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ paths: 'exact', queryParams: 'ignored', fragment: 'ignored', matrixParams: 'ignored' }">
+      Shop
+    </a>
+    <a routerLink="/" [queryParams]="{ category: 'laptops' }" fragment="shop">Laptops</a>
+    <a routerLink="/" [queryParams]="{ category: 'desktops' }" fragment="shop">Desktops</a>
+    <a routerLink="/" [queryParams]="{ category: 'accessories' }" fragment="shop">Accessories</a>
+    <a routerLink="/" [queryParams]="{ category: 'peripherals' }" fragment="shop">Peripherals</a>
+    <a routerLink="/build" class="btn-build">Build</a>
+  </nav>
+</header>
+
+<router-outlet />
+
+<footer>
+  © {{ year }} Forge Computers &middot;
+  <a routerLink="/build" class="footer-link">Build your own PC</a>
+</footer>

@@ -133,9 +133,15 @@ Its main feature is **ForgeAI**, a PC-building engine.
     - `GET /api/me/warranties` (ACTIVE/EXPIRED + days left)
     - Shared `@StrongPassword` rule
   - Env vars to run: `DB_PASSWORD`, `JWT_SECRET` (required); `ADMIN_EMAIL`/`ADMIN_PASSWORD` (optional).
-- Not yet verified against the real DB: V2-V6 and the API (unit/web tests pass without DB).
-  Everything is pushed to GitHub (RonyXuX/futuretech).
+- 2026-11-17: V1-V6 verified on the real DB (DB was reset because V2 had been edited after it
+  ran; 160 products loaded). Local DB user `futuretech_app` owns database `futuretech`.
+  This folder is the only real repo; `futuretech prototype` was a temporary copy.
 - Comment style: only "why" comments (decisions, traps, non-obvious rules); no comments that
   repeat the code or the URL mapping. Never edit migration files (Flyway checksums).
+- Frontend (2026-11-17): Angular 22 storefront in `/frontend`, connected to the catalog API.
+  `ProductService` calls `/api/categories` and `/api/products` (paged, `?category=&page=` in the URL);
+  dev proxy `frontend/proxy.conf.json` forwards `/api` to :8080. Cart is still a placeholder.
+  Run: `cd frontend; npm install` (once), then `ng serve`.
+- Admin point adjustments: no note column (decided 2026-11-17).
 - Next: B4 admin (products with specs, customers, orders status, points adjustments), then
   B5 rule engine, B6 saved builds, B7 AI recommendations, B8 budget optimizer.

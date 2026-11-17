@@ -1,0 +1,4 @@
+// 70px is roughly the sticky nav height. Update it if the header changes.
+.build-page {
+  min-height: calc(100vh - 70px);
+}

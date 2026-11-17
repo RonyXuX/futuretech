@@ -1,0 +1,79 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 32px;
+  background: rgba(15, 17, 21, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: 0.5px;
+  color: var(--text);
+  text-decoration: none;
+}
+.logo span {
+  color: var(--accent);
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+.links a {
+  color: var(--muted);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.links a:hover,
+.links a.active {
+  color: var(--text);
+}
+
+// !important is needed to override the `.links a` color, which is more specific.
+.btn-build,
+.btn-build:hover {
+  background: var(--accent);
+  color: #111 !important;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+.btn-build:hover {
+  background: var(--accent-2);
+}
+
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 28px;
+  border-top: 1px solid var(--border);
+}
+.footer-link {
+  color: var(--accent) !important;
+}
+
+@media (max-width: 640px) {
+  .nav {
+    padding: 14px 18px;
+  }
+}
