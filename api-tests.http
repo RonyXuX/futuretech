@@ -27,6 +27,55 @@ Content-Type: application/json
 }
 
 
+########## ForgeAI: compatibility check (open to guests, no token) ##########
+
+### Sara's demo build (V5): compatible and complete
+POST {{baseUrl}}/forge/check
+Content-Type: application/json
+
+{
+  "items": [
+    { "productId": 1,   "quantity": 1 },
+    { "productId": 69,  "quantity": 1 },
+    { "productId": 77,  "quantity": 1 },
+    { "productId": 31,  "quantity": 1 },
+    { "productId": 89,  "quantity": 1 },
+    { "productId": 117, "quantity": 1 },
+    { "productId": 122, "quantity": 1 },
+    { "productId": 134, "quantity": 1 }
+  ]
+}
+
+### Same build in a small SFX-only case: CASE_SIZE, PSU_SIZE and more
+POST {{baseUrl}}/forge/check
+Content-Type: application/json
+
+{
+  "items": [
+    { "productId": 1,   "quantity": 1 },
+    { "productId": 69,  "quantity": 1 },
+    { "productId": 77,  "quantity": 1 },
+    { "productId": 31,  "quantity": 1 },
+    { "productId": 89,  "quantity": 1 },
+    { "productId": 117, "quantity": 1 },
+    { "productId": 131, "quantity": 1 },
+    { "productId": 134, "quantity": 1 }
+  ]
+}
+
+### Live builder, first two parts: AM5 CPU + LGA1700 board -> SOCKET error, rest listed as missing
+POST {{baseUrl}}/forge/check
+Content-Type: application/json
+
+{ "items": [ { "productId": 1, "quantity": 1 }, { "productId": 60, "quantity": 1 } ] }
+
+### Empty build (the builder's starting point)
+POST {{baseUrl}}/forge/check
+Content-Type: application/json
+
+{ "items": [] }
+
+
 ########## Admin products ##########
 
 ### List all products, hidden ones too (same filters as the store)

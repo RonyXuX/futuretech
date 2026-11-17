@@ -50,6 +50,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/api/health", "/api/categories/**", "/api/products/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                // guests can try the manual builder; the check only calculates, nothing is saved
+                .requestMatchers(HttpMethod.POST, "/api/forge/check").permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated())

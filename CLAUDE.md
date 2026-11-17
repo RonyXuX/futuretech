@@ -160,4 +160,15 @@ Its main feature is **ForgeAI**, a PC-building engine.
   or full name, customers only; `GET /{id}` with orders + points history) and
   `POST /{id}/points {"amount": n}` (via `PointsService.adjustByAdmin`; balance can't go below 0,
   checked inside one atomic UPDATE). Paging for all lists in `service/Paging` (max size 100).
-- Next: B5 rule engine, B6 saved builds, B7 AI recommendations, B8 budget optimizer.
+- 2026-11-18: B5 done: rule engine. `POST /api/forge/check {items:[{productId, quantity}]}` (open to
+  guests) returns `compatible`, `complete`, `errors`, `warnings`, `missingParts`, `estimatedWattage`,
+  `totalPrice`.
+  - Package `forge`: `CompatibilityRule` interface, `BuildParts` (plain specs, no DB), `Issue`
+    (rule, ERROR/WARNING, message, productIds). 10 rules in `forge/rules`, each with its own test:
+    socket, RAM type, RAM slots/max GB, PSU wattage, case size, GPU length, cooler height,
+    cooler socket, PSU size, radiator fit.
+  - Decided: wattage = CPU TDP + GPU TDP + 100 W; below = ERROR, under 30% headroom = WARNING.
+    GPU is only required when the CPU has no integrated graphics. Max 1 CPU/board/GPU/PSU/case/cooler;
+    RAM and storage can be several (quantity 1-8). Bad structure = 400, incompatibility = report.
+  - `CompatibilityService.check(items)` is what B6 (saved builds) and B7 (validate AI builds) will call.
+- Next: B6 saved builds, B7 AI recommendations, B8 budget optimizer.
