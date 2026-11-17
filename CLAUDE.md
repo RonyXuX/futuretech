@@ -103,6 +103,7 @@ Its main feature is **ForgeAI**, a PC-building engine.
   - V3 PSU size (ATX/SFX) and radiator fit columns
   - V4 saved builds (`saved_builds`, `build_items`)
   - V5 demo customers, orders, warranties, points, one saved build (`docs/demo-accounts.md`)
+  - V7 relabels the cancelled demo order's points reversal as `ORDER_CANCELLED` (V5 said ADMIN_ADJUSTMENT)
   - All entities + repositories. ERD in `docs/erd.md`.
   - Admin is created at startup from `ADMIN_EMAIL` / `ADMIN_PASSWORD`
     (`AdminAccountInitializer`).
