@@ -113,16 +113,24 @@ public class OrderService {
         return toDto(order);
     }
 
-    /** Only while PLACED: restores stock, removes the warranties and takes the points back. */
     @Transactional
     public OrderDto cancelMyOrder(Long userId, Long orderId) {
         Order order = orderRepository.findWithLockByIdAndUserId(orderId, userId)
                 .orElseThrow(() -> orderNotFound(orderId));
-        if (order.getStatus() != OrderStatus.PLACED) {
+        if (!order.getStatus().canChangeTo(OrderStatus.CANCELLED)) {
             throw new ConflictException("Only orders that have not shipped yet can be cancelled (this one is "
                     + order.getStatus() + ").");
         }
+        cancel(order);
+        return OrderDto.from(order, 0, Map.of());
+    }
 
+    /**
+     * Restores stock, removes the warranties and takes the points back. Shared by the customer's
+     * cancel and the admin's status change, so both undo an order in exactly the same way.
+     * The caller must have locked the order row and checked that it may be cancelled.
+     */
+    void cancel(Order order) {
         List<Long> productIds = order.getItems().stream().map(i -> i.getProduct().getId()).toList();
         productRepository.findAllByIdForUpdate(productIds);  // lock the rows before changing stock
         for (OrderItem item : order.getItems()) {
@@ -133,7 +141,6 @@ public class OrderService {
         order.setStatus(OrderStatus.CANCELLED);
         warrantyRepository.deleteByOrderItemOrderId(order.getId());
         pointsService.reverseForOrder(order);
-        return OrderDto.from(order, 0, Map.of());
     }
 
     /** Collects every problem first, so the customer can fix the whole cart at once. */
@@ -171,7 +178,7 @@ public class OrderService {
         return warrantyRepository.saveAll(warranties);
     }
 
-    private OrderDto toDto(Order order) {
+    OrderDto toDto(Order order) {
         return OrderDto.from(order, pointsService.pointsForOrder(order.getId()),
                 byItemId(warrantyRepository.findByOrderItemOrderId(order.getId())));
     }

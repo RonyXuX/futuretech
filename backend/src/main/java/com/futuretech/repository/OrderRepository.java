@@ -5,11 +5,14 @@ import java.util.Optional;
 
 import jakarta.persistence.LockModeType;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 
 import com.futuretech.entity.Order;
+import com.futuretech.entity.enums.OrderStatus;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
@@ -26,4 +29,21 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Order> findWithLockByIdAndUserId(Long id, Long userId);
+
+    // ---------- admin: every customer's orders ----------
+
+    // Only the customer is joined: fetching the items collection here would make Hibernate
+    // page in memory. The items come in one batch per page instead (@BatchSize on Order.items).
+    @Override
+    @EntityGraph(attributePaths = "user")
+    Page<Order> findAll(Pageable pageable);
+
+    @EntityGraph(attributePaths = "user")
+    Page<Order> findByStatus(OrderStatus status, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"user", "items", "items.product"})
+    Optional<Order> findDetailedById(Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    Optional<Order> findWithLockById(Long id);
 }

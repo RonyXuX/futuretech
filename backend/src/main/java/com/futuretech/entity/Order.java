@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.BatchSize;
+
 import com.futuretech.entity.enums.OrderStatus;
 
 import jakarta.persistence.*;
@@ -51,7 +53,9 @@ public class Order {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    // The admin list shows a page of orders; this loads all their items in one query, not one per order
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 100)
     private List<OrderItem> items = new ArrayList<>();
 
     /** Adds an item and sets both sides of the relationship. */

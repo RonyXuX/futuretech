@@ -150,5 +150,10 @@ Its main feature is **ForgeAI**, a PC-building engine.
   category (`ProductType.categorySlug()`), enforced on create/update.
   Manual API tests in `api-tests.http` (VS Code REST Client; secrets read from `.env`).
   Run config `.vscode/launch.json` loads `.env` and uses the Debug Console (hides secrets).
-- Next: B4 rest (orders status, customers, points adjustments), then
+- 2026-11-18: B4 part 2 done: admin orders (`GET /api/admin/orders?status=&page=&size=`, `GET /{id}`
+  with customer, `PATCH /{id}/status`). Allowed moves only in `OrderStatus.canChangeTo`:
+  PLACED -> SHIPPED -> DELIVERED, PLACED -> CANCELLED (decided: shipped orders can't be cancelled).
+  Admin cancel reuses `OrderService.cancel` (stock, warranties, points). Decided: no disabling or
+  deleting customers.
+- Next: B4 rest (customers list/detail, points adjustments), then
   B5 rule engine, B6 saved builds, B7 AI recommendations, B8 budget optimizer.

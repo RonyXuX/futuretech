@@ -116,6 +116,44 @@ Content-Type: application/json
 { "active": true }
 
 
+########## Admin orders ##########
+# Status moves: PLACED -> SHIPPED -> DELIVERED, or PLACED -> CANCELLED. Anything else gives 409.
+# The requests below work on a fresh order, so the demo orders from V5 stay untouched.
+
+### Customer places a fresh order to play with
+# @name freshOrder
+POST {{baseUrl}}/orders
+Authorization: Bearer {{customerToken}}
+Content-Type: application/json
+
+{
+  "items": [ { "productId": 2, "quantity": 1 } ],
+  "shipping": { "fullName": "Lina Haddad", "address": "12 Hamra Street", "city": "Beirut", "phone": "+961 70 000 001" }
+}
+
+### All orders, newest first (add &status=PLACED, SHIPPED, DELIVERED or CANCELLED to filter)
+GET {{baseUrl}}/admin/orders?size=5
+Authorization: Bearer {{adminToken}}
+
+### One order with its items and the customer who placed it
+GET {{baseUrl}}/admin/orders/{{freshOrder.response.body.id}}
+Authorization: Bearer {{adminToken}}
+
+### Ship it (send "DELIVERED" next; "CANCELLED" on a PLACED order also restores stock and points)
+PATCH {{baseUrl}}/admin/orders/{{freshOrder.response.body.id}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "status": "SHIPPED" }
+
+### Cancel after shipping (expect 409: only PLACED orders can be cancelled)
+PATCH {{baseUrl}}/admin/orders/{{freshOrder.response.body.id}}/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "status": "CANCELLED" }
+
+
 ########## Admin products: requests that must fail ##########
 
 ### Wrong specs for the type (expect 400 on specs.kind)
