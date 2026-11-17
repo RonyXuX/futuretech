@@ -61,4 +61,44 @@ class LoginRateLimiterTest {
         }
         assertThatCode(() -> limiter.checkAllowed("login:5.6.7.8")).doesNotThrowAnyException();
     }
+
+    // ---------- memory cleanup ----------
+
+    @Test
+    void finishedWindows_areForgotten() {
+        for (int i = 0; i < 1000; i++) {
+            limiter.checkAllowed("login:10.0." + (i / 256) + "." + (i % 256));
+        }
+        assertThat(limiter.trackedKeys()).isEqualTo(1000);
+
+        clock.advance(Duration.ofMinutes(1));
+        limiter.checkAllowed("login:1.2.3.4");
+
+        assertThat(limiter.trackedKeys()).isEqualTo(1);  // only the new one is left
+    }
+
+    @Test
+    void cleanup_keepsWindowsThatAreStillRunning() {
+        for (int i = 0; i < 10; i++) {
+            limiter.checkAllowed("login:1.2.3.4");  // uses up the whole minute
+        }
+        clock.advance(Duration.ofSeconds(59));
+        limiter.checkAllowed("login:5.6.7.8");
+        clock.advance(Duration.ofSeconds(2));       // 1.2.3.4's window is over, 5.6.7.8's isn't
+
+        limiter.checkAllowed("login:9.9.9.9");      // triggers the cleanup
+
+        assertThat(limiter.trackedKeys()).isEqualTo(2);  // 5.6.7.8 and 9.9.9.9
+    }
+
+    @Test
+    void cleanup_neverResetsABlockedAddressEarly() {
+        for (int i = 0; i < 10; i++) {
+            limiter.checkAllowed("login:1.2.3.4");
+        }
+        clock.advance(Duration.ofSeconds(30));
+        limiter.checkAllowed("login:5.6.7.8");      // other traffic in the same minute
+
+        assertThatThrownBy(() -> limiter.checkAllowed("login:1.2.3.4")).isInstanceOf(AuthException.class);
+    }
 }

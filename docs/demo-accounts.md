@@ -12,7 +12,9 @@ only the BCrypt hash is stored in the database.
 | sara.mansour@example.com | A **cancelled** order (points taken back), a **placed** order, and one **saved ForgeAI build** |
 
 Points rule: **1 point per whole dollar** of the order total. A cancelled order gets its points
-removed with a negative `ADMIN_ADJUSTMENT` entry in `point_transactions`.
+removed with a negative `ORDER_CANCELLED` entry in `point_transactions` (V5 wrote these as
+`ADMIN_ADJUSTMENT`; V7 corrected them). `ADMIN_ADJUSTMENT` is only for manual changes by an
+admin, which never belong to an order.
 
 ## Admin
 
