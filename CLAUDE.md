@@ -136,6 +136,8 @@ Its main feature is **ForgeAI**, a PC-building engine.
 - 2026-11-17: V1-V6 verified on the real DB (DB was reset because V2 had been edited after it
   ran; 160 products loaded). Local DB user `futuretech_app` owns database `futuretech`.
   This folder is the only real repo; `futuretech prototype` was a temporary copy.
+- 2026-11-18: project moved out of OneDrive to `C:\Projects\futuretech` (OneDrive sync fought with
+  node_modules/target). Angular project renamed `futuretech-prototype` -> `futuretech-frontend`.
 - Comment style: only "why" comments (decisions, traps, non-obvious rules); no comments that
   repeat the code or the URL mapping. Never edit migration files (Flyway checksums).
 - Frontend (2026-11-17): Angular 22 storefront in `/frontend`, connected to the catalog API.
