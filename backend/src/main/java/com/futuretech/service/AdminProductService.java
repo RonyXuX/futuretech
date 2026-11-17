@@ -1,5 +1,6 @@
 package com.futuretech.service;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,7 +67,7 @@ public class AdminProductService {
         Product product = new Product();
         product.setProductType(request.productType());
         copyFields(request, product, sku, category);
-        productRepository.save(product);  // gives the product its id, which the spec row reuses
+        saveCheckingSku(product, sku);  // gives the product its id, which the spec row reuses
         if (request.specs() != null) {
             productSpecsService.saveSpecs(product, request.specs());
         }
@@ -92,10 +93,23 @@ public class AdminProductService {
                 });
 
         copyFields(request, product, sku, category);
+        saveCheckingSku(product, sku);
         if (request.specs() != null) {
             productSpecsService.saveSpecs(product, request.specs());
         }
         return toDto(product);
+    }
+
+    /**
+     * Two admins saving the same SKU at the same moment both pass the findBySku check; the UNIQUE
+     * constraint stops the second one. Flushing here makes that error happen now, so it becomes a 409.
+     */
+    private void saveCheckingSku(Product product, String sku) {
+        try {
+            productRepository.saveAndFlush(product);
+        } catch (DataIntegrityViolationException e) {
+            throw skuTaken(sku);
+        }
     }
 
     @Transactional

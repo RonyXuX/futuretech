@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -53,6 +54,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             response.header(HttpHeaders.RETRY_AFTER, String.valueOf(Math.max(1, ex.getRetryAfter().toSeconds())));
         }
         return response.body(ProblemDetail.forStatusAndDetail(ex.getStatus(), ex.getMessage()));
+    }
+
+    /**
+     * Safety net for races the services don't catch themselves: the database refused a duplicate or
+     * a broken reference, so the request conflicts with existing data. That is a 409, not a server error.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleDataIntegrity(DataIntegrityViolationException ex) {
+        log.warn("Database constraint refused a change: {}", ex.getMostSpecificCause().getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+                "This change conflicts with existing data. Reload and try again.");
     }
 
     @ExceptionHandler(AccessDeniedException.class)

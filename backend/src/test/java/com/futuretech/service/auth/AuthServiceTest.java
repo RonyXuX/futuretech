@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -150,7 +151,7 @@ class AuthServiceTest {
         authService.register(new RegisterRequest(" New@Example.com", "Secret123", "Sam", "Lee", ""), IP);
 
         ArgumentCaptor<User> saved = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(saved.capture());
+        verify(userRepository).saveAndFlush(saved.capture());
         User user = saved.getValue();
         assertThat(user.getEmail()).isEqualTo("new@example.com");
         assertThat(user.getRole()).isEqualTo(Role.CUSTOMER);
@@ -167,6 +168,20 @@ class AuthServiceTest {
                 new RegisterRequest("lina@example.com", "Secret123", "L", "H", null), IP))
                 .isInstanceOfSatisfying(AuthException.class,
                         ex -> assertThat(ex.getStatus()).isEqualTo(HttpStatus.CONFLICT));
+    }
+
+    @Test
+    void register_sameEmailAtTheSameMoment_givesTheNormal409() {
+        // both sign-ups passed existsByEmail; the database's UNIQUE constraint refuses the second one
+        when(userRepository.existsByEmail("new@example.com")).thenReturn(false);
+        when(userRepository.saveAndFlush(any(User.class)))
+                .thenThrow(new DataIntegrityViolationException("duplicate key value violates unique constraint"));
+        RegisterRequest request = new RegisterRequest("new@example.com", "Secret123", "Sam", "Lee", null);
+
+        assertThatThrownBy(() -> authService.register(request, IP))
+                .isInstanceOfSatisfying(AuthException.class,
+                        ex -> assertThat(ex.getStatus()).isEqualTo(HttpStatus.CONFLICT));
+        verify(refreshTokenService, never()).create(any());
     }
 
     @Test

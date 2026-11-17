@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +65,13 @@ public class AuthService {
         user.setLastName(request.lastName().trim());
         user.setPhone(request.phone() == null || request.phone().isBlank() ? null : request.phone().trim());
         user.setRole(Role.CUSTOMER);
-        userRepository.save(user);
+        try {
+            userRepository.saveAndFlush(user);
+        } catch (DataIntegrityViolationException e) {
+            // Two sign-ups with the same email at the same moment both pass the check above;
+            // the UNIQUE constraint stops the second one, which gets the normal answer
+            throw AuthException.emailAlreadyUsed();
+        }
         return issueTokens(user);
     }
 

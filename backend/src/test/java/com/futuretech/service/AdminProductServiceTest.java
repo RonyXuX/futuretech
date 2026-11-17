@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import com.futuretech.dto.ProductDetailDto;
 import com.futuretech.dto.admin.ProductRequest;
@@ -55,7 +56,7 @@ class AdminProductServiceTest {
     void create_savesProductThenItsSpecs() {
         when(categoryRepository.findBySlug("processors")).thenReturn(Optional.of(category()));
         when(productRepository.findBySku("FT-CPU-099")).thenReturn(Optional.empty());
-        when(productRepository.save(any(Product.class))).thenAnswer(call -> {
+        when(productRepository.saveAndFlush(any(Product.class))).thenAnswer(call -> {
             Product saved = call.getArgument(0);
             saved.setId(42L);  // what the database would do
             return saved;
@@ -77,7 +78,7 @@ class AdminProductServiceTest {
 
         service.createProduct(request(ProductType.ACCESSORY, null));
 
-        verify(productRepository).save(any(Product.class));
+        verify(productRepository).saveAndFlush(any(Product.class));
         verify(productSpecsService, never()).saveSpecs(any(), any());
     }
 
@@ -90,7 +91,22 @@ class AdminProductServiceTest {
         assertThatThrownBy(() -> service.createProduct(productRequest))
                 .isInstanceOf(ConflictException.class)
                 .hasMessageContaining("FT-CPU-099");
-        verify(productRepository, never()).save(any());
+        verify(productRepository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void create_sameSkuAtTheSameMoment_givesTheNormal409() {
+        // both admins passed findBySku; the database's UNIQUE constraint refuses the second one
+        when(categoryRepository.findBySlug("processors")).thenReturn(Optional.of(category()));
+        when(productRepository.findBySku("FT-CPU-099")).thenReturn(Optional.empty());
+        when(productRepository.saveAndFlush(any(Product.class)))
+                .thenThrow(new DataIntegrityViolationException("duplicate key value violates unique constraint"));
+
+        ProductRequest productRequest = request(ProductType.CPU, CPU_SPECS);
+        assertThatThrownBy(() -> service.createProduct(productRequest))
+                .isInstanceOf(ConflictException.class)
+                .hasMessageContaining("FT-CPU-099");
+        verify(productSpecsService, never()).saveSpecs(any(), any());
     }
 
     @Test
@@ -112,7 +128,7 @@ class AdminProductServiceTest {
                 .isInstanceOf(InvalidInputException.class)
                 .hasMessageContaining("processors")
                 .extracting("field").isEqualTo("categorySlug");
-        verify(productRepository, never()).save(any());
+        verify(productRepository, never()).saveAndFlush(any());
     }
 
     @Test
@@ -276,7 +292,7 @@ class AdminProductServiceTest {
         assertThatThrownBy(() -> service.createProduct(request))
                 .isInstanceOf(InvalidInputException.class)
                 .extracting("field").isEqualTo(field);
-        verify(productRepository, never()).save(any());
+        verify(productRepository, never()).saveAndFlush(any());
     }
 
     private static ProductRequest request(ProductType type, SpecsRequest specs) {
