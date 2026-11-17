@@ -30,16 +30,16 @@ public class ProductService {
         this.productSpecsService = productSpecsService;
     }
 
-    /** Bad page numbers and sizes are corrected instead of rejected. */
     @Transactional(readOnly = true)
     public PageResponse<ProductSummaryDto> searchProducts(ProductFilter filter, ProductSort sort, int page, int size) {
-        int safePage = Math.max(page, 0);
-        int safeSize = Math.clamp(size, 1, MAX_PAGE_SIZE);
-        Pageable pageable = PageRequest.of(safePage, safeSize, sort.toSort());
-
         return PageResponse.from(
-                productRepository.findAll(ProductSpecifications.fromFilter(filter), pageable),
+                productRepository.findAll(ProductSpecifications.fromFilter(filter), pageRequest(sort, page, size)),
                 ProductSummaryDto::from);
+    }
+
+    /** Bad page numbers and sizes are corrected instead of rejected. Shared with the admin product list. */
+    static Pageable pageRequest(ProductSort sort, int page, int size) {
+        return PageRequest.of(Math.max(page, 0), Math.clamp(size, 1, MAX_PAGE_SIZE), sort.toSort());
     }
 
     /** Hidden (inactive) products count as not found. */

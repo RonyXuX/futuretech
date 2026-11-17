@@ -145,5 +145,10 @@ Its main feature is **ForgeAI**, a PC-building engine.
   dev proxy `frontend/proxy.conf.json` forwards `/api` to :8080. Cart is still a placeholder.
   Run: `cd frontend; npm install` (once), then `ng serve`.
 - Admin point adjustments: no note column (decided 2026-11-17).
-- Next: B4 admin (products with specs, customers, orders status, points adjustments), then
+- 2026-11-18: B4 part 1 done: admin products (`/api/admin/products` list/get/create/update,
+  `PATCH /{id}/active` to hide/show; never deleted). Each `ProductType` belongs to exactly one
+  category (`ProductType.categorySlug()`), enforced on create/update.
+  Manual API tests in `api-tests.http` (VS Code REST Client; secrets read from `.env`).
+  Run config `.vscode/launch.json` loads `.env` and uses the Debug Console (hides secrets).
+- Next: B4 rest (orders status, customers, points adjustments), then
   B5 rule engine, B6 saved builds, B7 AI recommendations, B8 budget optimizer.

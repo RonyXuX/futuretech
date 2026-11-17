@@ -13,9 +13,23 @@ public final class ProductSpecifications {
     private ProductSpecifications() {
     }
 
-    /** Always "active", plus one condition per filter that is set. */
+    /** For the store: always "active", plus the filters. */
     public static Specification<Product> fromFilter(ProductFilter f) {
-        Specification<Product> spec = isActive();
+        return isActive().and(matching(f));
+    }
+
+    /** For admins: hidden products too, unless active is set (true = only visible, false = only hidden). */
+    public static Specification<Product> forAdmin(ProductFilter f, Boolean active) {
+        Specification<Product> spec = matching(f);
+        if (active != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("active"), active));
+        }
+        return spec;
+    }
+
+    /** One condition per filter that is set; no filters matches every product. */
+    private static Specification<Product> matching(ProductFilter f) {
+        Specification<Product> spec = (root, query, cb) -> cb.conjunction();
         if (f.search() != null && !f.search().isBlank()) {
             spec = spec.and(nameOrBrandContains(f.search()));
         }

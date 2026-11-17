@@ -132,13 +132,13 @@ class ProductControllerTest {
 
     private static ProductSummaryDto summary() {
         return new ProductSummaryDto(7L, "FT-GPU-001", "NVIDIA GeForce RTX 5060 Ti 16GB", "NVIDIA",
-                new BigDecimal("499.99"), true, 12, ProductType.GPU, "graphics-cards", "Graphics Cards", 62, null);
+                new BigDecimal("499.99"), true, 12, ProductType.GPU, "graphics-cards", "Graphics Cards", 62, null, true);
     }
 
     private static ProductDetailDto detail() {
         return new ProductDetailDto(7L, "FT-GPU-001", "NVIDIA GeForce RTX 5060 Ti 16GB", "NVIDIA",
                 "GeForce RTX 5060 Ti, 16 GB VRAM.", new BigDecimal("499.99"), true, 12, ProductType.GPU,
-                new CategoryDto(4L, "Graphics Cards", "graphics-cards", null), 36, 62, null,
+                new CategoryDto(4L, "Graphics Cards", "graphics-cards", null), 36, 62, null, true,
                 new ProductSpecsDto.Gpu("GeForce RTX 5060 Ti", 16, 280, 180));
     }
 }

@@ -17,7 +17,8 @@ public record ProductSummaryDto(
         String categorySlug,
         String categoryName,
         Integer performanceScore,
-        String imageUrl) {
+        String imageUrl,
+        boolean active) {
 
     /** Needs an open transaction: the category is lazy. */
     public static ProductSummaryDto from(Product p) {
@@ -25,6 +26,6 @@ public record ProductSummaryDto(
                 p.getId(), p.getSku(), p.getName(), p.getBrand(), p.getPrice(),
                 p.getStockQuantity() > 0, p.getStockQuantity(), p.getProductType(),
                 p.getCategory().getSlug(), p.getCategory().getName(),
-                p.getPerformanceScore(), p.getImageUrl());
+                p.getPerformanceScore(), p.getImageUrl(), p.getActive());
     }
 }

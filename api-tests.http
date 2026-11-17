@@ -1,0 +1,177 @@
+# Manual API tests for the VS Code "REST Client" extension.
+# Click "Send Request" above a request to run it.
+# Passwords come from .env via {{$dotenv ...}}, so no secret is ever written in this file.
+
+@baseUrl = http://localhost:8080/api
+@adminToken = {{adminLogin.response.body.accessToken}}
+@customerToken = {{customerLogin.response.body.accessToken}}
+
+### Log in as admin (run this first; the token lasts 15 minutes)
+# @name adminLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{$dotenv ADMIN_EMAIL}}",
+  "password": "{{$dotenv ADMIN_PASSWORD}}"
+}
+
+### Log in as a demo customer (public demo password, see docs/demo-accounts.md)
+# @name customerLogin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "lina.haddad@example.com",
+  "password": "Demo@2026"
+}
+
+
+########## Admin products ##########
+
+### List all products, hidden ones too (same filters as the store)
+GET {{baseUrl}}/admin/products?size=5
+Authorization: Bearer {{adminToken}}
+
+### Only hidden products (active=true shows only visible ones)
+GET {{baseUrl}}/admin/products?active=false
+Authorization: Bearer {{adminToken}}
+
+### One product with its specs
+GET {{baseUrl}}/admin/products/1
+Authorization: Bearer {{adminToken}}
+
+### Create a CPU (expect 201; run it twice to see 409 for the duplicate SKU)
+# @name createdProduct
+POST {{baseUrl}}/admin/products
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "sku": "TEST-CPU-001",
+  "name": "Test CPU 9000",
+  "brand": "TestBrand",
+  "description": "Created from api-tests.http",
+  "price": 199.99,
+  "stockQuantity": 5,
+  "categorySlug": "processors",
+  "productType": "CPU",
+  "warrantyMonths": 36,
+  "performanceScore": 70,
+  "specs": {
+    "kind": "CPU",
+    "socket": "AM5",
+    "cores": 8,
+    "threads": 16,
+    "baseClockGhz": 4.2,
+    "boostClockGhz": 5.0,
+    "tdpWatts": 105,
+    "integratedGraphics": true
+  }
+}
+
+### Update the product created above (PUT replaces every field)
+PUT {{baseUrl}}/admin/products/{{createdProduct.response.body.id}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "sku": "TEST-CPU-001",
+  "name": "Test CPU 9000",
+  "brand": "TestBrand",
+  "description": "Price lowered",
+  "price": 149.50,
+  "stockQuantity": 10,
+  "categorySlug": "processors",
+  "productType": "CPU",
+  "warrantyMonths": 36,
+  "performanceScore": 70,
+  "specs": {
+    "kind": "CPU",
+    "socket": "AM5",
+    "cores": 8,
+    "threads": 16,
+    "baseClockGhz": 4.2,
+    "boostClockGhz": 5.0,
+    "tdpWatts": 105,
+    "integratedGraphics": true
+  }
+}
+
+### Hide it from the store (the public detail page then gives 404)
+PATCH {{baseUrl}}/admin/products/{{createdProduct.response.body.id}}/active
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "active": false }
+
+### Public view of the same product (404 while hidden)
+GET {{baseUrl}}/products/{{createdProduct.response.body.id}}
+
+### Show it again
+PATCH {{baseUrl}}/admin/products/{{createdProduct.response.body.id}}/active
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "active": true }
+
+
+########## Admin products: requests that must fail ##########
+
+### Wrong specs for the type (expect 400 on specs.kind)
+POST {{baseUrl}}/admin/products
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "sku": "TEST-CPU-002",
+  "name": "CPU with GPU specs",
+  "brand": "TestBrand",
+  "price": 100,
+  "stockQuantity": 1,
+  "categorySlug": "processors",
+  "productType": "CPU",
+  "warrantyMonths": 12,
+  "specs": { "kind": "GPU", "chipset": "X", "vramGb": 8, "lengthMm": 250, "tdpWatts": 200 }
+}
+
+### Air cooler with a radiator (expect 400 on specs.radiatorMm)
+POST {{baseUrl}}/admin/products
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "sku": "TEST-COOL-001",
+  "name": "Bad air cooler",
+  "brand": "TestBrand",
+  "price": 30,
+  "stockQuantity": 1,
+  "categorySlug": "cpu-coolers",
+  "productType": "COOLER",
+  "warrantyMonths": 12,
+  "specs": { "kind": "COOLER", "coolerType": "AIR", "heightMm": 150, "radiatorMm": 240, "supportedSockets": ["AM5"] }
+}
+
+### CPU in the Laptops category (expect 400 on categorySlug: each type has one category)
+POST {{baseUrl}}/admin/products
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "sku": "TEST-CPU-003",
+  "name": "CPU in the wrong category",
+  "brand": "TestBrand",
+  "price": 100,
+  "stockQuantity": 1,
+  "categorySlug": "laptops",
+  "productType": "CPU",
+  "warrantyMonths": 12,
+  "specs": { "kind": "CPU", "socket": "AM5", "cores": 8, "threads": 16, "baseClockGhz": 4.2, "tdpWatts": 105, "integratedGraphics": true }
+}
+
+### Customer token on an admin endpoint (expect 403)
+GET {{baseUrl}}/admin/products
+Authorization: Bearer {{customerToken}}
+
+### No token (expect 401)
+GET {{baseUrl}}/admin/products

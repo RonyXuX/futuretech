@@ -20,6 +20,7 @@ public record ProductDetailDto(
         Integer warrantyMonths,
         Integer performanceScore,
         String imageUrl,
+        boolean active,
         ProductSpecsDto specs) {
 
     /** Needs an open transaction: the category is lazy. */
@@ -28,6 +29,6 @@ public record ProductDetailDto(
                 p.getId(), p.getSku(), p.getName(), p.getBrand(), p.getDescription(), p.getPrice(),
                 p.getStockQuantity() > 0, p.getStockQuantity(), p.getProductType(),
                 CategoryDto.from(p.getCategory()), p.getWarrantyMonths(), p.getPerformanceScore(),
-                p.getImageUrl(), specs);
+                p.getImageUrl(), p.getActive(), specs);
     }
 }
