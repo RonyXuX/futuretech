@@ -154,6 +154,42 @@ Content-Type: application/json
 { "status": "CANCELLED" }
 
 
+########## Admin customers ##########
+
+### All customers, newest first (admins are never listed)
+GET {{baseUrl}}/admin/customers
+Authorization: Bearer {{adminToken}}
+
+### Search by email or full name, ignoring case
+GET {{baseUrl}}/admin/customers?search=lina had
+Authorization: Bearer {{adminToken}}
+
+### One customer: profile, orders and points history (the customer logged in above)
+GET {{baseUrl}}/admin/customers/{{customerLogin.response.body.user.id}}
+Authorization: Bearer {{adminToken}}
+
+### Give 10 points (send the next request too, so the demo balance goes back to what it was)
+POST {{baseUrl}}/admin/customers/{{customerLogin.response.body.user.id}}/points
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "amount": 10 }
+
+### Take the 10 points back
+POST {{baseUrl}}/admin/customers/{{customerLogin.response.body.user.id}}/points
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "amount": -10 }
+
+### Take more than the balance (expect 409: the balance can't go below 0)
+POST {{baseUrl}}/admin/customers/{{customerLogin.response.body.user.id}}/points
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{ "amount": -100000 }
+
+
 ########## Admin products: requests that must fail ##########
 
 ### Wrong specs for the type (expect 400 on specs.kind)

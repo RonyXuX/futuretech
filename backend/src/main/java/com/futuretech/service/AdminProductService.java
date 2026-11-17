@@ -44,7 +44,7 @@ public class AdminProductService {
                                                           int page, int size) {
         return PageResponse.from(
                 productRepository.findAll(ProductSpecifications.forAdmin(filter, active),
-                        ProductService.pageRequest(sort, page, size)),
+                        Paging.of(page, size, sort.toSort())),
                 ProductSummaryDto::from);
     }
 

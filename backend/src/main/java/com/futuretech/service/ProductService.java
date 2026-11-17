@@ -2,8 +2,6 @@ package com.futuretech.service;
 
 import java.util.List;
 
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +18,6 @@ import com.futuretech.repository.ProductSpecifications;
 @Service
 public class ProductService {
 
-    static final int MAX_PAGE_SIZE = 100;
-
     private final ProductRepository productRepository;
     private final ProductSpecsService productSpecsService;
 
@@ -33,13 +29,8 @@ public class ProductService {
     @Transactional(readOnly = true)
     public PageResponse<ProductSummaryDto> searchProducts(ProductFilter filter, ProductSort sort, int page, int size) {
         return PageResponse.from(
-                productRepository.findAll(ProductSpecifications.fromFilter(filter), pageRequest(sort, page, size)),
+                productRepository.findAll(ProductSpecifications.fromFilter(filter), Paging.of(page, size, sort.toSort())),
                 ProductSummaryDto::from);
-    }
-
-    /** Bad page numbers and sizes are corrected instead of rejected. Shared with the admin product list. */
-    static Pageable pageRequest(ProductSort sort, int page, int size) {
-        return PageRequest.of(Math.max(page, 0), Math.clamp(size, 1, MAX_PAGE_SIZE), sort.toSort());
     }
 
     /** Hidden (inactive) products count as not found. */

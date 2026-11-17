@@ -73,7 +73,7 @@ class AdminOrderServiceTest {
 
         Pageable used = capturePageable();
         assertThat(used.getPageNumber()).isZero();
-        assertThat(used.getPageSize()).isEqualTo(AdminOrderService.MAX_PAGE_SIZE);
+        assertThat(used.getPageSize()).isEqualTo(Paging.MAX_PAGE_SIZE);
     }
 
     // ---------- detail ----------

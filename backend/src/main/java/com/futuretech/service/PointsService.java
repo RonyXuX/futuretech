@@ -11,6 +11,8 @@ import com.futuretech.entity.Order;
 import com.futuretech.entity.User;
 import com.futuretech.entity.PointTransaction;
 import com.futuretech.entity.enums.PointReason;
+import com.futuretech.exception.ConflictException;
+import com.futuretech.exception.InvalidInputException;
 import com.futuretech.repository.PointTransactionRepository;
 import com.futuretech.repository.UserRepository;
 
@@ -43,6 +45,26 @@ public class PointsService {
         if (remaining > 0) {
             record(order, -remaining, PointReason.ORDER_CANCELLED);
         }
+    }
+
+    /**
+     * Admin correction, not linked to an order (amount may be negative). Refused if the balance
+     * would go below 0; the database checks that in the same UPDATE, so it can't race.
+     */
+    public void adjustByAdmin(User user, int amount) {
+        if (amount == 0) {
+            throw new InvalidInputException("amount", "must not be 0");
+        }
+        int balanceBefore = user.getPointsBalance();
+        if (userRepository.addPointsIfNotNegative(user.getId(), amount) == 0) {
+            throw new ConflictException("The balance is " + balanceBefore + " points, so " + amount
+                    + " would make it negative.");
+        }
+        PointTransaction t = new PointTransaction();
+        t.setUser(user);
+        t.setPoints(amount);
+        t.setReason(PointReason.ADMIN_ADJUSTMENT);
+        transactions.save(t);
     }
 
     public int pointsForOrder(Long orderId) {

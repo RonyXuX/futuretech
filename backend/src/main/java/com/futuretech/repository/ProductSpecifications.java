@@ -89,8 +89,8 @@ public final class ProductSpecifications {
         return (root, query, cb) -> cb.greaterThan(root.get("stockQuantity"), 0);
     }
 
-    /** Stops the user's % and _ from acting as SQL wildcards. */
-    private static String escapeLike(String text) {
+    /** Stops the user's % and _ from acting as SQL wildcards. Also used by UserSpecifications. */
+    static String escapeLike(String text) {
         return text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
     }
 }

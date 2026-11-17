@@ -155,5 +155,8 @@ Its main feature is **ForgeAI**, a PC-building engine.
   PLACED -> SHIPPED -> DELIVERED, PLACED -> CANCELLED (decided: shipped orders can't be cancelled).
   Admin cancel reuses `OrderService.cancel` (stock, warranties, points). Decided: no disabling or
   deleting customers.
-- Next: B4 rest (customers list/detail, points adjustments), then
-  B5 rule engine, B6 saved builds, B7 AI recommendations, B8 budget optimizer.
+- 2026-11-18: B4 complete. Part 3: admin customers (`GET /api/admin/customers?search=` by email
+  or full name, customers only; `GET /{id}` with orders + points history) and
+  `POST /{id}/points {"amount": n}` (via `PointsService.adjustByAdmin`; balance can't go below 0,
+  checked inside one atomic UPDATE). Paging for all lists in `service/Paging` (max size 100).
+- Next: B5 rule engine, B6 saved builds, B7 AI recommendations, B8 budget optimizer.

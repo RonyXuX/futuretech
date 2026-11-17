@@ -1,7 +1,6 @@
 package com.futuretech.service;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,6 @@ import com.futuretech.repository.OrderRepository;
 @Service
 public class AdminOrderService {
 
-    static final int MAX_PAGE_SIZE = 100;
     // id breaks ties between orders placed in the same instant, so paging is stable
     private static final Sort NEWEST_FIRST = Sort.by(Sort.Direction.DESC, "createdAt", "id");
 
@@ -33,10 +31,10 @@ public class AdminOrderService {
         this.orderService = orderService;
     }
 
-    /** status = null lists every order. Bad page numbers and sizes are corrected instead of rejected. */
+    /** status = null lists every order. */
     @Transactional(readOnly = true)
     public PageResponse<AdminOrderSummaryDto> searchOrders(OrderStatus status, int page, int size) {
-        Pageable pageable = PageRequest.of(Math.max(page, 0), Math.clamp(size, 1, MAX_PAGE_SIZE), NEWEST_FIRST);
+        Pageable pageable = Paging.of(page, size, NEWEST_FIRST);
         Page<Order> orders = status == null
                 ? orderRepository.findAll(pageable)
                 : orderRepository.findByStatus(status, pageable);

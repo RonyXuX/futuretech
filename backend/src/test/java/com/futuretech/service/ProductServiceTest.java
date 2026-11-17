@@ -89,7 +89,7 @@ class ProductServiceTest {
         ArgumentCaptor<Pageable> pageable = ArgumentCaptor.forClass(Pageable.class);
         verify(productRepository).findAll(any(Specification.class), pageable.capture());
         assertThat(pageable.getValue().getPageNumber()).isZero();                       // -3 -> 0
-        assertThat(pageable.getValue().getPageSize()).isEqualTo(ProductService.MAX_PAGE_SIZE); // 500 -> 100
+        assertThat(pageable.getValue().getPageSize()).isEqualTo(Paging.MAX_PAGE_SIZE); // 500 -> 100
         assertThat(pageable.getValue().getSort().getOrderFor("price").isAscending()).isTrue();
 
         assertThat(result.content()).hasSize(1);
